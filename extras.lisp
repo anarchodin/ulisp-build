@@ -2,6 +2,14 @@
 
 (in-package :ulisp-build)
 
+;; FIXME: Don't know where this makes sense, so here it goes.
+(defmacro defsection (name filename)
+  "Generates a function, called name, that writes the contents of filename to a stream."
+  `(defun ,name (stream)
+     (let* ((source-file (asdf:system-relative-pathname "ulisp-build" ,filename))
+            (source-code (uiop:read-file-string source-file)))
+       (write-string source-code stream))))
+
 ; To run do (generate)
 
 ; Sharp-double-quote
@@ -139,6 +147,7 @@ object *fn_~a (object *args, object *env) {
   return ~{c~arx(~}first(args)~a;
 }" lower (cdr (butlast (coerce lower 'list))) (make-string (- (length lower) 2) :initial-element #\)))))
 
+;; FIXME: Should be in a sensible place. definitions.lisp ?
 (defun print-enums (defs &optional (stream *standard-output*) (margin 90))
   "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
   (let ((*standard-output* (or stream *standard-output*))

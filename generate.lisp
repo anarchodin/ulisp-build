@@ -24,7 +24,8 @@
              (return)))))))))
 
 (defun generate (&optional (platform :avr) (comments nil))
- (let ((maxsymbol 0)
+ (let ((*ulisp-features* (get-features platform))
+       (maxsymbol 0)
        (definitions (case platform (:zero *definitions-zero*) (t *definitions*))))
    (flet ((include (section str)
            (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
@@ -49,9 +50,15 @@
     ;; Write preamble
     ; (include :header str)
     (write-no-comments str (eval (intern (format nil "*~a-~a*" :header platform) :ulisp-build)) t)
-    (include :macros str)
-    (include :constants str)
-    ;; Write enum declarations
+
+    ;; The next two are from preface.lisp
+    (write-macros str) ; Common macro definitions.
+    (write-constants platform str) ; Per-platform constants.
+
+    ;; Write enum declarations - print-enums is defined in extras.lisp
+    (fresh-line str)
+    (write-string "// See uLisp internals documentation for details on how the " str)
+    (write-line "following enum is derived." str)
     (print-enums definitions str)
     (include :typedefs str)
     (include :workspace str)
@@ -79,25 +86,22 @@
     (include :note str)
     (include :sleep str)
     (include :prettyprint str)
-    (include :assembler str)
+    ;; See assembler.lisp
+    (write-assembler str)
     #+interrupts
     (include :interrupts str)
     ;; Write function definitions
+    ;; FIXME: Put this in its own function (and file).
     (dolist (section definitions)
       (destructuring-bind (comment defs &optional prefix) section
         (declare (ignore prefix))
         (unless (string= comment "Symbols") (format str "~%// ~a~%" comment))
         (dolist (item defs)
           (destructuring-bind (enum string min max definition) item
-            (declare (ignore min max))
-            (cond
-             ((null definition) nil)
-             ((stringp definition)
-              (write-no-comments str definition comments))
-             ((symbolp definition)
-              (funcall definition str enum string)
-              (format str "~%"))
-             (t nil))))))
+            (declare (ignore min max definition))
+            (let ((source (get-definition enum)))
+              (if source
+                  (write-string (subseq source (1+ (position #\Linefeed source))) str)))))))
     ;; Write PROGMEM strings
     (format str "~%// Insert your own function definitions here~%")
     (format str "~%// Built-in procedure names - stored in PROGMEM~%~%")
