@@ -1,4 +1,5 @@
 (require 'asdf)
+(asdf:initialize-source-registry `(:source-registry (:directory ,(uiop:getcwd)) :inherit-configuration))
 
 ;; Options: :avr :arm :msp430 :esp :stm32 :badge :zero :interrupts :riscv
 
