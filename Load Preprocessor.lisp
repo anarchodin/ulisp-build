@@ -1,3 +1,5 @@
+(require 'asdf)
+
 ;; Options: :avr :arm :msp430 :esp :stm32 :badge :zero :interrupts :riscv
 
 (push :arm *features*)
