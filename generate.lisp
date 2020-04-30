@@ -52,7 +52,7 @@
     (include :macros str)
     (include :constants str)
     ;; Write enum declarations
-    (format str "~%enum function { ~{~a~^~%~}ENDFUNCTIONS };~%" (enums definitions))
+    (print-enums definitions str)
     (include :typedefs str)
     (include :workspace str)
     (include :global-variables str)

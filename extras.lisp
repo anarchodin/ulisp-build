@@ -139,17 +139,22 @@ object *fn_~a (object *args, object *env) {
   return ~{c~arx(~}first(args)~a;
 }" lower (cdr (butlast (coerce lower 'list))) (make-string (- (length lower) 2) :initial-element #\)))))
 
-(defun enums (defs)
-  (let* ((enums (format nil "~{~a, ~}" (map 'list #'car (apply #'append (mapcar #'cadr defs)))))
-         (start 0)
-         (end 90) 
-         (length (length enums))
-         result)
-          (loop
-           (let ((comma (position #\, enums :start start :end end :from-end t)))
-             (push (subseq enums start (1+ comma)) result)
-             (setq start (+ comma 2) end (+ comma 2 106))
-             (when (> end length)
-               (push (subseq enums start) result) 
-               (return (reverse result)))))))      
-        
+(defun print-enums (defs &optional (stream *standard-output*) (margin 90))
+  "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
+  (let ((*standard-output* (or stream *standard-output*))
+        (*print-right-margin* margin)
+        (symbols (mapcar #'car (apply #'append (mapcar #'cadr defs)))))
+    (pprint-logical-block (nil nil)
+      (write-string "enum function {")
+      (terpri)
+      (write-string "  ")
+      (pprint-indent :current 0)
+      (pprint-logical-block (nil symbols :suffix "ENDFUNCTIONS")
+        (loop
+           (pprint-exit-if-list-exhausted)
+           (write (pprint-pop))
+           (write-string ", ")
+           (pprint-newline :fill)))
+      (terpri)
+      (write-string "};")
+      (terpri))))
