@@ -1,6 +1,8 @@
-;;;-*- Mode: Lisp; Package: cl-user -*-
+;;;-*- Mode: Lisp; Package: ulisp-build -*-
 
-(in-package :cl-user)
+(in-package :ulisp-build)
+
+(defvar *ulisp-outfile* #P"ulisp.ino")
 
 ;; Generate *********************************************************************************************
 
@@ -25,8 +27,8 @@
  (let ((maxsymbol 0)
        (definitions (case platform (:zero *definitions-zero*) (t *definitions*))))
    (flet ((include (section str)
-           (let ((special (intern (format nil "*~a-~a*" section platform) :cl-user))
-                 (default (intern (format nil "*~a*" section) :cl-user)))
+           (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
+                 (default (intern (format nil "*~a*" section) :ulisp-build)))
              (cond
               ((boundp special) 
                (let ((inc (eval special)))
@@ -39,11 +41,14 @@
                   ((listp inc) (map nil #'(lambda (x) (write-no-comments str x comments)) inc))
                   (t (write-no-comments str inc comments)))))
               (t nil)))))
-    ;;           
-  (with-open-file (str (capi:prompt-for-file "Output File" :operation :save :pathname "/Users/david/Desktop/") :direction :output)
+    ;;
+     (with-open-file (str #-lispworks *ulisp-outfile*
+                          #+lispworks (capi:prompt-for-file "Output File" :operation :save
+                                                            :pathname "/Users/david/Desktop/")
+                          :direction :output)
     ;; Write preamble
     ; (include :header str)
-    (write-no-comments str (eval (intern (format nil "*~a-~a*" :header platform) :cl-user)) t)
+    (write-no-comments str (eval (intern (format nil "*~a-~a*" :header platform) :ulisp-build)) t)
     (include :macros str)
     (include :constants str)
     ;; Write enum declarations
@@ -134,6 +139,3 @@
     (include :repl str)
     (include :loop str)
   maxsymbol))))
-
-        
-        

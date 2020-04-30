@@ -1,6 +1,6 @@
-;;;-*- Mode: Lisp; Package: cl-user -*-
+;;;-*- Mode: Lisp; Package: ulisp-build -*-
 
-(in-package :cl-user)
+(in-package :ulisp-build)
 
 (defparameter *compactimage* '(
 

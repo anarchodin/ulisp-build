@@ -1,6 +1,6 @@
-;;;-*- Mode: Lisp; Package: cl-user -*-
+;;;-*- Mode: Lisp; Package: ulisp-build -*-
 
-(in-package :cl-user)
+(in-package :ulisp-build)
 
 ; To run do (generate)
 
@@ -20,8 +20,7 @@
 
 ; Code generation functions
 
-#-float
-(defun comparison (str enum string)
+(defun comparison-nofloat (str enum string)
   (format str "
 object *fn_~a (object *args, object *env) {
   (void) env;
@@ -40,9 +39,7 @@ object *fn_~a (object *args, object *env) {
            ((string= string "=") "==")
            (t string))))
 
-#+float
-(defun comparison (str enum string)
-  (declare (ignore string))
+(defun comparison-float (str enum string)
   (format str "
 object *fn_~a (object *args, object *env) {
   (void) env;
@@ -67,6 +64,7 @@ object *fn_~a (object *args, object *env) {
            (t string))
           enum))
 
+(setf (fdefinition 'comparison) (function #+float comparison-float #-float comparison-nofloat))
 
 (defun float-function (str enum string)
   (declare (ignore string))

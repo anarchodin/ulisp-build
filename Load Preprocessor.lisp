@@ -16,7 +16,4 @@
 #+(or riscv arm)
 (push :code *features*)
 
-
-(load "/Users/david/Projects/Preprocessor/preprocessor defsys.lisp")
-
-(compile-system "preprocessor" :load t) 
+(asdf:load-system "ulisp-build")
