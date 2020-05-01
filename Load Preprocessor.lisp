@@ -2,8 +2,9 @@
 (asdf:initialize-source-registry `(:source-registry (:directory ,(uiop:getcwd)) :inherit-configuration))
 
 ;; Options: :avr :arm :msp430 :esp :stm32 :badge :zero :interrupts :riscv
+(defvar *variant* :arm)
 
-(push :arm *features*)
+(push *variant* *features*)
 ;(push :interrupts *features*)
 
 
@@ -20,3 +21,10 @@
 (push :code *features*)
 
 (asdf:load-system "ulisp-build")
+(import '*variant* :ulisp-build)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (in-package :ulisp-build))
+
+(generate *variant*)
+
+#+ecl (ext:quit)

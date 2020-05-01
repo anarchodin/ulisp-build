@@ -2,7 +2,7 @@
 
 (in-package :ulisp-build)
 
-(defvar *ulisp-outfile* #P"ulisp.ino")
+(defvar *ulisp-outfile* #P"ulisp/ulisp.ino")
 
 ;; Generate *********************************************************************************************
 
