@@ -8,7 +8,8 @@
   `(defun ,name (stream)
      (let* ((source-file (asdf:system-relative-pathname "ulisp-build" ,filename))
             (source-code (uiop:read-file-string source-file)))
-       (write-string source-code stream))))
+       (write-string source-code stream)
+       (terpri stream))))
 
 ; To run do (generate)
 

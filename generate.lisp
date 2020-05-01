@@ -87,7 +87,8 @@
     (include :sleep str)
     (include :prettyprint str)
     ;; See assembler.lisp
-    (write-assembler str)
+    (when (member :code *ulisp-features*)
+      (write-assembler str))
     #+interrupts
     (include :interrupts str)
     ;; Write function definitions
