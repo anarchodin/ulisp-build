@@ -52,8 +52,8 @@
     (write-no-comments str (eval (intern (format nil "*~a-~a*" :header platform) :ulisp-build)) t)
 
     ;; The next two are from preface.lisp
-    (write-macros str) ; Common macro definitions.
     (write-constants platform str) ; Per-platform constants.
+    (write-macros str) ; Common macro definitions.
 
     ;; Write enum declarations - print-enums is defined in extras.lisp
     (fresh-line str)
