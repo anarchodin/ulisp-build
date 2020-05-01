@@ -1,5 +1,3 @@
-#include "ulisp.h"
-
 // Assembler
 
 object *call (int entry, int nargs, object *args, object *env) {
