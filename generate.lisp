@@ -2,7 +2,6 @@
 
 (in-package :ulisp-build)
 
-(defvar *platform* nil "The platform currently being built for.")
 (defvar *ulisp-outfile* #P"ulisp/ulisp.ino")
 
 ;; Generate *********************************************************************************************

@@ -2,6 +2,8 @@
 
 (in-package :ulisp-build)
 
+(defvar *platform* nil "The platform currently being built for.")
+
 (defvar *ulisp-features* '()
   "Symbols that represent the features to be present in the built uLisp. Empty by default.")
 
