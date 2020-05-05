@@ -136,9 +136,9 @@
                 (format str "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definition prefix lower (+ (ash min 4) (min max 15)))
                 (incf i))))))
       (format str "};~%"))
-    ;; Write rest
+    ;; Write rest -- postscript.lisp
     (include :table str)
-    (include :eval str)
+    (write-eval str)
     (include :print-functions str)
     (include :read-functions str)
     (when (eq platform :tlc) (write-string *tiny-lisp-computer* str))
