@@ -45,3 +45,55 @@
                (uiop:read-file-string filename))))
       (t (warn "Found multiple definitions for ~a." enum)
          (car sources)))))
+
+(defun write-definitions (definitions &optional (stream *standard-output*))
+  "Writes out the code of user-visible functions based on the provided declarations."
+  (dolist (section definitions)
+    (destructuring-bind (comment defs &optional prefix) section
+      (declare (ignore prefix))
+      (unless (string= comment "Symbols") (format t "~%// ~a~%" comment))
+      (dolist (item defs)
+        (destructuring-bind (enum string min max &optional feature) item
+          (declare (ignore string min max))
+          (unless (and (keywordp feature)
+                       (not (member feature *ulisp-features*)))
+            (let ((source (get-definition enum)))
+              (if source
+                  (write-string (subseq source (1+ (position #\Linefeed source))) stream)))))))))
+
+(defun write-table-strings (definitions &optional (stream *standard-output*))
+  "Writes out the strings for the symbols in the provided definitions."
+  (let ((i 0))
+    (dolist (section definitions)
+      (destructuring-bind (comment defs &optional prefix) section
+        (declare (ignore comment prefix))
+        (dolist (item defs)
+          (destructuring-bind (enum string min max &optional feature) item
+            (declare (ignore min max))
+            (unless (and (keywordp feature)
+                         (not (member feature *ulisp-features*)))
+              (let ((lower (string-downcase enum)))
+                (format stream "const char string~a[] PROGMEM = \"~a\";~%" i (or string lower))
+                (incf i)))))))))
+
+(defun write-lookup-table (definitions &optional (stream *standard-output*))
+  "Write the lookup table itself."
+  (let ((i 0))
+    (terpri)
+    (write-line "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited" stream)
+    (write-line "const tbl_entry_t lookup_table[] PROGMEM = {" stream)
+    (dolist (section definitions)
+      (destructuring-bind (comment defs &optional (prefix "fn")) section
+        (declare (ignore comment))
+        (dolist (item defs)
+          (destructuring-bind (enum string min max &optional feature) item
+            (declare (ignore string))
+            (unless (and (keywordp feature)
+                         (not (member feature *ulisp-features*)))
+              (let ((definedp (or (get-definition enum) (consp feature)))
+                    (lower (cond
+                             ((consp feature) (string-downcase (car feature)))
+                             (t (string-downcase enum)))))
+                (format stream "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definedp prefix lower (+ (ash min 4) (min max 15)))
+                (incf i)))))))
+      (format stream "};~%")))

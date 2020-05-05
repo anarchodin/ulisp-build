@@ -15,11 +15,11 @@
     (:arm
      (:types zzero symbol code number stream character float array string pair)
      (:streams serialstream i2cstream spistream sdstream stringstream gfxstream)
-     (:features :float :gfx :code))
+     (:features :float :gfx :code :array))
     (:riscv
      (:types zzero symbol code number stream character float array string pair)
      (:streams serialstream i2cstream spistream sdstream stringstream gfxstream)
-     (:features :float :gfx :code)))
+     (:features :float :gfx :code :array)))
   "An alist of alists, representing various characteristics of the platforms uLisp runs on.")
 
 (defun get-streams (platform)

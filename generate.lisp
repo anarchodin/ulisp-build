@@ -26,7 +26,6 @@
 (defun generate (&optional (platform :avr) (comments nil))
  (let ((*ulisp-features* (get-features platform))
        (*platform* platform)
-       (maxsymbol 0)
        (definitions *definitions*)) ; (case platform (:zero *definitions-zero*) (t *definitions*))
    (flet ((include (section &optional (str *standard-output*))
            (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
@@ -47,7 +46,7 @@
      (with-open-file (*standard-output* #-lispworks *ulisp-outfile*
                           #+lispworks (capi:prompt-for-file "Output File" :operation :save
                                                             :pathname "/Users/david/Desktop/")
-                          :direction :output)
+                          :direction :output :if-does-not-exist :create :if-exists :supersede)
     ;; Write preamble
 
     (write-section :header)
@@ -55,7 +54,7 @@
     (write-constants platform) ; Per-platform constants.
     (write-section :macros) ; Common macro definitions.
 
-    ;; Write enum declarations - print-enums is defined in extras.lisp
+    ;; Write enum declarations - print-enums is defined in definitions.lisp
     (terpri)
     (write-string "// See uLisp internals documentation for details on how the ")
     (write-line "following enum is derived.")
@@ -95,47 +94,16 @@
     (when (member :interrupts *ulisp-features*)
       (write-section :interrupts))
     ;; Write function definitions
-    ;; FIXME: Put this in its own function (and file).
-    (dolist (section definitions)
-      (destructuring-bind (comment defs &optional prefix) section
-        (declare (ignore prefix))
-        (unless (string= comment "Symbols") (format t "~%// ~a~%" comment))
-        (dolist (item defs)
-          (destructuring-bind (enum string min max definition) item
-            (declare (ignore string min max definition))
-            (let ((source (get-definition enum)))
-              (if source
-                  (write-string (subseq source (1+ (position #\Linefeed source))))))))))
+    (write-definitions definitions)
+
     ;; Write PROGMEM strings
     (format t "~%// Insert your own function definitions here~%")
     (format t "~%// Built-in procedure names - stored in PROGMEM~%~%")
-    (let ((i 0))
-      (dolist (section definitions)
-        (destructuring-bind (comment defs &optional prefix) section
-          (declare (ignore comment prefix))
-          (dolist (item defs)
-            (destructuring-bind (enum string min max definition) item
-              (declare (ignore definition min max))
-              (let ((lower (string-downcase enum)))
-                (format t "const char string~a[] PROGMEM = \"~a\";~%" i (or string lower))
-                (setq maxsymbol (max maxsymbol (length (or string lower))))
-                (incf i)))))))
+    (write-table-strings definitions)
+
     ;; Write table
-    (let ((i 0)
-          (comment "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited"))
-      (format t "~%~a~%const tbl_entry_t lookup_table[] PROGMEM = {~%" comment)
-      (dolist (section definitions)
-        (destructuring-bind (comment defs &optional (prefix "fn")) section
-          (declare (ignore comment))
-          (dolist (item defs)
-            (destructuring-bind (enum string min max definition) item
-              (declare (ignore string))
-              (let ((lower (cond
-                            ((consp definition) (string-downcase (car definition)))
-                            (t (string-downcase enum)))))
-                (format t "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definition prefix lower (+ (ash min 4) (min max 15)))
-                (incf i))))))
-      (format t "};~%"))
+    (write-lookup-table definitions)
+
     ;; Write rest -- postscript.lisp
     (write-section :table)
     (write-section :eval)
@@ -146,4 +114,4 @@
     (write-section :setup)
     (write-section :repl)
     (write-section :loop)
-  maxsymbol))))
+  't))))
