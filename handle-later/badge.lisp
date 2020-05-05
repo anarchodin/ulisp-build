@@ -6,6 +6,46 @@
 
 ; Tiny Lisp Computer
 
+#| From read-functions
+// For Lisp Badge
+volatile int WritePtr = 0, ReadPtr = 0;
+const int KybdBufSize = 333; // 42*8 - 3
+char KybdBuf[KybdBufSize];
+volatile uint8_t KybdAvailable = 0;
+
+int gserial () {
+  if (LastChar) { 
+    char temp = LastChar;
+    LastChar = 0;
+    return temp;
+  }
+  #if defined (serialmonitor)
+  while (!Serial.available() && !KybdAvailable);
+  if (Serial.available()) {
+    char temp = Serial.read();
+    if (temp != '\n') Serial.print(temp); // pserial(temp);
+    return temp;
+  } else {
+    if (ReadPtr != WritePtr) {
+      char temp = KybdBuf[ReadPtr++];
+      Serial.write(temp);
+      return temp;
+    }
+    KybdAvailable = 0;
+    WritePtr = 0;
+    return '\n';
+  }
+  #else
+  while (!KybdAvailable);
+  if (ReadPtr != WritePtr) return KybdBuf[ReadPtr++];
+  KybdAvailable = 0;
+  WritePtr = 0;
+  return '\n';
+  #endif
+}
+
+|#
+
 (defparameter *header-badge*
 #"/* Lisp Badge - uLisp 3.0b
    David Johnson-Davies - www.technoblogy.com - 26th March 2020

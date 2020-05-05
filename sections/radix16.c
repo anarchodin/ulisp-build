@@ -1,6 +1,7 @@
 // Radix 40 encoding
 
 #define MAXSYMBOL 64000
+#define SYMLENGTH 3
 
 int toradix40 (char ch) {
   if (ch == 0) return 0;

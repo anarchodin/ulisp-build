@@ -89,7 +89,7 @@
     (write-section :check-pins)
     (write-section :note)
     (write-section :sleep)
-    (include :prettyprint) ; TODO: Move pretty printer to new format
+    (write-section :pprint)
     (when (member :code *ulisp-features*)
       (write-section :assembler))
     (when (member :interrupts *ulisp-features*)
@@ -139,8 +139,8 @@
     ;; Write rest -- postscript.lisp
     (write-section :table)
     (write-section :eval)
-    (include :print-functions) ; TODO: Move to new format
-    (include :read-functions) ; TODO: Move to new format
+    (write-section :print-functions)
+    (write-section :read-functions)
     ;(when (eq platform :tlc) (write-string *tiny-lisp-computer*))
     ;(when (eq platform :badge) (write-string *lisp-badge*))
     (write-section :setup)
