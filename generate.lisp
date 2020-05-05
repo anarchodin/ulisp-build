@@ -70,9 +70,9 @@
     (write-section :setup-workspace)
     (write-section :make-objects)
     (write-section :gc)
-    (include :compactimage) ; TODO: Move to new format
-    (include :make-filename) ; TODO: Move to new format
-    (include :saveimage) ; TODO: Move to new format
+    (write-section :compactimage)
+    (write-section :make-filename)
+    (write-section :saveimage)
     (write-section :trace)
     (write-section :helpers)
     (write-radix-encoding platform)
