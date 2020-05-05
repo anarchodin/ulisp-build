@@ -35,7 +35,9 @@ const char LispLibrary[] PROGMEM = "";
 #define SDSIZE 0
 #endif
 
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+#if __AVR_ARCH__ == 100 || __AVR_ARCH__ == 103
 #define PROGMEM
 #define PSTR(s) (s)
+#else
+#define NEEDS_PROGMEM
 #endif

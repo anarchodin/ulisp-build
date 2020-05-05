@@ -102,3 +102,9 @@ int listlength (symbol_t name, object *list) {
   }
   return length;
 }
+
+void testescape () {
+#if !defined(LISPBADGE) || defined(serialmonitor)
+  if (Serial.read() == '~') error(PSTR("Escape!"));
+#endif
+}

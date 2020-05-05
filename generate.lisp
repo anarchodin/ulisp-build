@@ -138,7 +138,7 @@
                 (incf i))))))
       (format t "};~%"))
     ;; Write rest -- postscript.lisp
-    (include :table) ; TODO: Move to new format
+    (write-section :table)
     (write-section :eval)
     (include :print-functions) ; TODO: Move to new format
     (include :read-functions) ; TODO: Move to new format
