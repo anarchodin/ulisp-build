@@ -28,7 +28,7 @@
  (let ((*ulisp-features* (get-features platform))
        (*platform* platform)
        (maxsymbol 0)
-       (definitions (case platform (:zero *definitions-zero*) (t *definitions*))))
+       (definitions *definitions*)) ; (case platform (:zero *definitions-zero*) (t *definitions*))
    (flet ((include (section &optional (str *standard-output*))
            (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
                  (default (intern (format nil "*~a*" section) :ulisp-build)))
@@ -142,8 +142,8 @@
     (write-section :eval)
     (include :print-functions) ; TODO: Move to new format
     (include :read-functions) ; TODO: Move to new format
-    (when (eq platform :tlc) (write-string *tiny-lisp-computer*))
-    (when (eq platform :badge) (write-string *lisp-badge*))
+    ;(when (eq platform :tlc) (write-string *tiny-lisp-computer*))
+    ;(when (eq platform :badge) (write-string *lisp-badge*))
     (write-section :setup)
     (write-section :repl)
     (write-section :loop)

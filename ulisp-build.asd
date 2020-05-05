@@ -13,7 +13,4 @@
                (:file "saveload")
                (:file "prettyprint")
                (:file "postscript")
-               (:file "tlc")
-               (:file "zero")
-               (:file "badge")
                (:file "generate")))
