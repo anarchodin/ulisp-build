@@ -184,8 +184,6 @@ void testescape () {
 #endif
 }"#))
 
-(defsection write-eval "sections/eval.c")
-
 (defparameter *print-functions* 
 
   '(#"
@@ -270,7 +268,7 @@ void printstring (object *form, pfun_t pfun) {
     form = car(form);
   }
   if (tstflag(PRINTREADABLY)) pfun('"');
-}"#
+}"# ; " <-- Annoying.
 
     #+(or msp430 badge)
     #"
@@ -1174,158 +1172,4 @@ object *read (gfun_t gfun) {
   if (item == (object *)DOT) return read(gfun);
   if (item == (object *)QUO) return cons(symbol(QUOTE), cons(read(gfun), NULL)); 
   return item;
-}"#))
-
-
-(defparameter *setup* '(
-
-#"
-// Setup"#
-
-#-(or arm riscv)
-#"
-void initenv () {
-  GlobalEnv = NULL;
-  tee = symbol(TEE);
-}
-
-void setup () {
-  Serial.begin(9600);
-  int start = millis();
-  while ((millis() - start) < 5000) { if (Serial) break; }
-  initworkspace();
-  initenv();
-  initsleep();
-  pfstring(PSTR("uLisp 3.1 "), pserial); pln(pserial);
-}"#
-
-#+riscv
-#"
-void initgfx () {
-#if defined(gfxsupport)
-  tft.begin(15000000, COLOR_BLACK);
-  tft.setRotation(2);
-#endif
-}
-
-void initenv () {
-  GlobalEnv = NULL;
-  tee = symbol(TEE);
-}
-
-void setup () {
-  Serial.begin(9600);
-  int start = millis();
-  while ((millis() - start) < 5000) { if (Serial) break; }
-  initworkspace();
-  initenv();
-  initsleep();
-  initgfx();
-  pfstring(PSTR("uLisp 3.2 "), pserial); pln(pserial);
-}"#
-
-#+arm
-#"
-void initgfx () {
-#if defined(gfxsupport)
-  tft.initR(INITR_BLACKTAB);
-  tft.setRotation(1);
-  pinMode(TFT_BACKLIGHT, OUTPUT);
-  digitalWrite(TFT_BACKLIGHT, HIGH);
-  tft.fillScreen(ST77XX_BLACK);
-#endif
-}
-void initenv () {
-  GlobalEnv = NULL;
-  tee = symbol(TEE);
-}
-
-void setup () {
-  Serial.begin(9600);
-  int start = millis();
-  while ((millis() - start) < 5000) { if (Serial) break; }
-  initworkspace();
-  initenv();
-  initsleep();
-  initgfx();
-  pfstring(PSTR("uLisp 3.2 "), pserial); pln(pserial);
-}"#))
-
-(defparameter *repl* #"
-// Read/Evaluate/Print loop
-
-void repl (object *env) {
-  for (;;) {
-    randomSeed(micros());
-    gc(NULL, env);
-    #if defined (printfreespace)
-    pint(Freespace, pserial);
-    #endif
-    if (BreakLevel) {
-      pfstring(PSTR(" : "), pserial);
-      pint(BreakLevel, pserial);
-    }
-    pfstring(PSTR("> "), pserial);
-    object *line = read(gserial);
-    if (BreakLevel && line == nil) { pln(pserial); return; }
-    if (line == (object *)KET) error2(0, PSTR("unmatched right bracket"));
-    push(line, GCStack);
-    pfl(pserial);
-    line = eval(line, env);
-    pfl(pserial);
-    printobject(line, pserial);
-    pop(GCStack);
-    pfl(pserial);
-    pln(pserial);
-  }
-}"#)
-
-(defparameter *loop* '(
-
-#+avr
-#"
-void loop () {
-  if (!setjmp(exception)) {
-    #if defined(resetautorun)
-    volatile int autorun = 12; // Fudge to keep code size the same
-    #else
-    volatile int autorun = 13;
-    #endif
-    if (autorun == 12) autorunimage();
-  }
-  // Come here after error
-  delay(100); while (Serial.available()) Serial.read();
-  clrflag(NOESC);
-  for (int i=0; i<TRACEMAX; i++) TraceDepth[i] = 0;
-  #if defined(sdcardsupport)
-  SDpfile.close(); SDgfile.close();
-  #endif
-  #if defined(lisplibrary)
-  if (!tstflag(LIBRARYLOADED)) { setflag(LIBRARYLOADED); loadfromlibrary(NULL); }
-  #endif
-  repl(NULL);
-}"#
-
-#-avr
-#"
-void loop () {
-  if (!setjmp(exception)) {
-    #if defined(resetautorun)
-    volatile int autorun = 12; // Fudge to keep code size the same
-    #else
-    volatile int autorun = 13;
-    #endif
-    if (autorun == 12) autorunimage();
-  }
-  // Come here after error
-  delay(100); while (Serial.available()) Serial.read();
-  clrflag(NOESC);
-  for (int i=0; i<TRACEMAX; i++) TraceDepth[i] = 0;
-  #if defined(sdcardsupport)
-  SDpfile.close(); SDgfile.close();
-  #endif
-  #if defined(lisplibrary)
-  if (!tstflag(LIBRARYLOADED)) { setflag(LIBRARYLOADED); loadfromlibrary(NULL); }
-  #endif
-  repl(NULL);
 }"#))

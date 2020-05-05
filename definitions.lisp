@@ -2,6 +2,26 @@
 
 (in-package :ulisp-build)
 
+(defun print-enums (defs &optional (stream *standard-output*) (margin 90))
+  "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
+  (let ((*standard-output* (or stream *standard-output*))
+        (*print-right-margin* margin)
+        (symbols (mapcar #'car (apply #'append (mapcar #'cadr defs)))))
+    (pprint-logical-block (nil nil)
+      (write-string "enum function {")
+      (terpri)
+      (write-string "  ")
+      (pprint-indent :current 0)
+      (pprint-logical-block (nil symbols :suffix "ENDFUNCTIONS")
+        (loop
+           (pprint-exit-if-list-exhausted)
+           (write (pprint-pop))
+           (write-string ", ")
+           (pprint-newline :fill)))
+      (terpri)
+      (write-string "};")
+      (terpri))))
+
 (defun fn-pathname (enum &optional feature)
   "Returns path to the C file implementing a given function with a given feature, or the default file if feature is not provided. If no such file exists, return nil."
   (let ((fn-directory (asdf:system-relative-pathname "ulisp-build" "functions/"))

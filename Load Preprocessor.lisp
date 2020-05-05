@@ -25,6 +25,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (in-package :ulisp-build))
 
+(format t "Building uLisp for variant ~a.~%" *variant*)
 (generate *variant*)
 
 #+ecl (ext:quit)

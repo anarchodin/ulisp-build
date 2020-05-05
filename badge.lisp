@@ -1,5 +1,7 @@
 ;;;-*- Mode: Lisp; Package: ulisp-build -*-
 
+;;; FIXME: The AVR i2c-interface code also needs to be included for the badge.
+
 (in-package :ulisp-build)
 
 ; Tiny Lisp Computer

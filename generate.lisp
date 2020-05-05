@@ -2,6 +2,7 @@
 
 (in-package :ulisp-build)
 
+(defvar *platform* nil "The platform currently being built for.")
 (defvar *ulisp-outfile* #P"ulisp/ulisp.ino")
 
 ;; Generate *********************************************************************************************
@@ -25,9 +26,10 @@
 
 (defun generate (&optional (platform :avr) (comments nil))
  (let ((*ulisp-features* (get-features platform))
+       (*platform* platform)
        (maxsymbol 0)
        (definitions (case platform (:zero *definitions-zero*) (t *definitions*))))
-   (flet ((include (section str)
+   (flet ((include (section &optional (str *standard-output*))
            (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
                  (default (intern (format nil "*~a*" section) :ulisp-build)))
              (cond
@@ -43,72 +45,71 @@
                   (t (write-no-comments str inc comments)))))
               (t nil)))))
     ;;
-     (with-open-file (str #-lispworks *ulisp-outfile*
+     (with-open-file (*standard-output* #-lispworks *ulisp-outfile*
                           #+lispworks (capi:prompt-for-file "Output File" :operation :save
                                                             :pathname "/Users/david/Desktop/")
                           :direction :output)
     ;; Write preamble
-    ; (include :header str)
-    (write-no-comments str (eval (intern (format nil "*~a-~a*" :header platform) :ulisp-build)) t)
 
-    ;; The next two are from preface.lisp
-    (write-constants platform str) ; Per-platform constants.
-    (write-macros str) ; Common macro definitions.
+    (write-section :header)
+
+    (write-constants platform) ; Per-platform constants.
+    (write-section :macros) ; Common macro definitions.
 
     ;; Write enum declarations - print-enums is defined in extras.lisp
-    (fresh-line str)
-    (write-string "// See uLisp internals documentation for details on how the " str)
-    (write-line "following enum is derived." str)
-    (print-enums definitions str)
-    ;; From utilities.lisp
-    (write-typedefs str)
-    (include :workspace str) ; TODO: Needs proper platform-dependent behaviour.
-    (write-globals str)
-    (write-error str)
-    (write-workspace-setup str)
-    (write-makers str)
-    (write-gc str)
-    (include :compactimage str)
-    (include :make-filename str)
-    (include :saveimage str)
-    (write-trace str)
-    (write-helpers str)
-    (write-radix-encoding platform str)
-    (write-alist str)
+    (terpri)
+    (write-string "// See uLisp internals documentation for details on how the ")
+    (write-line "following enum is derived.")
+    (print-enums definitions)
+    (terpri)
+
+    (write-section :typedefs)
+    (write-section :workspace)
+    (write-section :globals)
+    (write-section :error)
+    (write-section :setup-workspace)
+    (write-section :make-objects)
+    (write-section :gc)
+    (include :compactimage) ; TODO: Move to new format
+    (include :make-filename) ; TODO: Move to new format
+    (include :saveimage) ; TODO: Move to new format
+    (write-section :trace)
+    (write-section :helpers)
+    (write-radix-encoding platform)
+    (write-section :alist)
     (unless (eq platform :avr)
-      (write-array str))
-    (write-string-utils str)
+      (write-section :array))
+    (write-section :string)
     (when (member :ethernet *ulisp-features*)
-      (write-stringconv str))
-    (write-closure str)
-    (write-in-place str)
-    (include :i2c-interface str) ; TODO: Hardware abstraction layer?
-    (include :stream-interface str)
+      (write-section :stringconv))
+    (write-section :closure)
+    (write-section :in-place)
+    (write-section :i2c-interface)
+    (write-section :stream-interface)
     ; (include :watchdog str)
-    (include :check-pins str)
-    (include :note str)
-    (include :sleep str)
-    (include :prettyprint str)
-    ;; See assembler.lisp
+    (write-section :check-pins)
+    (write-section :note)
+    (write-section :sleep)
+    (include :prettyprint) ; TODO: Move pretty printer to new format
     (when (member :code *ulisp-features*)
-      (write-assembler str))
-    #+interrupts
-    (include :interrupts str)
+      (write-section :assembler))
+    (when (member :interrupts *ulisp-features*)
+      (write-section :interrupts))
     ;; Write function definitions
     ;; FIXME: Put this in its own function (and file).
     (dolist (section definitions)
       (destructuring-bind (comment defs &optional prefix) section
         (declare (ignore prefix))
-        (unless (string= comment "Symbols") (format str "~%// ~a~%" comment))
+        (unless (string= comment "Symbols") (format t "~%// ~a~%" comment))
         (dolist (item defs)
           (destructuring-bind (enum string min max definition) item
             (declare (ignore string min max definition))
             (let ((source (get-definition enum)))
               (if source
-                  (write-string (subseq source (1+ (position #\Linefeed source))) str)))))))
+                  (write-string (subseq source (1+ (position #\Linefeed source))))))))))
     ;; Write PROGMEM strings
-    (format str "~%// Insert your own function definitions here~%")
-    (format str "~%// Built-in procedure names - stored in PROGMEM~%~%")
+    (format t "~%// Insert your own function definitions here~%")
+    (format t "~%// Built-in procedure names - stored in PROGMEM~%~%")
     (let ((i 0))
       (dolist (section definitions)
         (destructuring-bind (comment defs &optional prefix) section
@@ -117,13 +118,13 @@
             (destructuring-bind (enum string min max definition) item
               (declare (ignore definition min max))
               (let ((lower (string-downcase enum)))
-                (format str "const char string~a[] PROGMEM = \"~a\";~%" i (or string lower))
+                (format t "const char string~a[] PROGMEM = \"~a\";~%" i (or string lower))
                 (setq maxsymbol (max maxsymbol (length (or string lower))))
                 (incf i)))))))
     ;; Write table
     (let ((i 0)
           (comment "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited"))
-      (format str "~%~a~%const tbl_entry_t lookup_table[] PROGMEM = {~%" comment)
+      (format t "~%~a~%const tbl_entry_t lookup_table[] PROGMEM = {~%" comment)
       (dolist (section definitions)
         (destructuring-bind (comment defs &optional (prefix "fn")) section
           (declare (ignore comment))
@@ -133,17 +134,17 @@
               (let ((lower (cond
                             ((consp definition) (string-downcase (car definition)))
                             (t (string-downcase enum)))))
-                (format str "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definition prefix lower (+ (ash min 4) (min max 15)))
+                (format t "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definition prefix lower (+ (ash min 4) (min max 15)))
                 (incf i))))))
-      (format str "};~%"))
+      (format t "};~%"))
     ;; Write rest -- postscript.lisp
-    (include :table str)
-    (write-eval str)
-    (include :print-functions str)
-    (include :read-functions str)
-    (when (eq platform :tlc) (write-string *tiny-lisp-computer* str))
-    (when (eq platform :badge) (write-string *lisp-badge* str))
-    (include :setup str)
-    (include :repl str)
-    (include :loop str)
+    (include :table) ; TODO: Move to new format
+    (write-section :eval)
+    (include :print-functions) ; TODO: Move to new format
+    (include :read-functions) ; TODO: Move to new format
+    (when (eq platform :tlc) (write-string *tiny-lisp-computer*))
+    (when (eq platform :badge) (write-string *lisp-badge*))
+    (write-section :setup)
+    (write-section :repl)
+    (write-section :loop)
   maxsymbol))))

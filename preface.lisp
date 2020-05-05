@@ -5,8 +5,6 @@
 ;; FIXME: This belongs elsewhere.
 (defvar *maximum-trace-count* 3 "The number of functions that can be traced at one time.")
 
-(defsection write-macros "sections/macros.c")
-
 (defun print-types (typelist &optional (stream *standard-output*))
   "Output type definitions for the given types."
   (format stream "~&~%// Types~%")
@@ -21,7 +19,7 @@
         (*print-right-margin* margin))
     (format stream "enum stream { ~<~@{~a~#[ ~:;, ~]~:_~:}~:>};~%" streamlist))) ; Eek?
 
-(defun write-constants (platform stream)
+(defun write-constants (platform &optional (stream *standard-output*))
   "Write out the constants table used by a platform."
   (format stream "~&~%// Constants~%~%")
   (format stream "const int TRACEMAX = ~d; // Number of traced functions~%" *maximum-trace-count*)
