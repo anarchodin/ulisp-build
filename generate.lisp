@@ -2,7 +2,7 @@
 
 (in-package :ulisp-build)
 
-(defvar *ulisp-outfile* #P"ulisp/ulisp.ino")
+(defvar *ulisp-outfile* (asdf:system-relative-pathname "ulisp-build" "ulisp/ulisp.ino"))
 
 ;; Generate *********************************************************************************************
 
