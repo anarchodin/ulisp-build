@@ -16,13 +16,19 @@ there'll be better documentation here.
 The build system depends on a Common Lisp implementation. I have tested
 [SBCL](http://sbcl.org) and [ECL](https://common-lisp.net/project/ecl/).
 
-At present slight edits to the file `Load Preprocessor.lisp` are required: Alter
-the `push` to match the variant you wish to build. Under ECL, the remaining
-process is fairly simple: <kbd>ecl --norc --load "Load Preprocessor.lisp" --eval
-'(in-package :ulisp-build)'</kbd> loads the required code. From there, call the
-function `generate`, with a keyword representing the variant desired.
+There is an ASDF system definition here, so one way of running the system is by
+getting ASDF to find that and doing `(asdf:load-system :ulisp-build)`. All the
+code is in the `ulisp-build` package. It currently does weird things if that
+isn't the current package, which can probably be fixed with the right printer
+control variables.
 
-The code is also packaged using ASDF, as the system `ulisp-build`.
+There's also the file `run-generator.lisp` file, which configures ASDF to search
+the current directory, loads the system, builds uLisp and (in ECL) exits. An
+example use, which also uses [arduino-cli][arduino] to compile uLisp for the
+[Adafruit ItsyBitsy M4 Express][itsym4], is in `test.sh`.
+
+[arduino]: https://arduino.github.io/arduino-cli/
+[itsym4]: https://www.adafruit.com/product/3800
 
 ## Licencing
 
