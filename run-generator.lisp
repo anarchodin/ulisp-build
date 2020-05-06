@@ -9,6 +9,11 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (in-package :ulisp-build))
 
+(defvar *output-file*
+  #-lispworks (asdf:system-relative-pathname "ulisp-build" "ulisp/ulisp.ino")
+  #+lispworks (capi:prompt-for-file "Output File" :operation :save
+                                                  :pathname "/Users/david/Desktop/"))
+
 ;; The system reads information from platforms.lisp for information about the
 ;; features to include. Currently defined there are :arm, :avr, and :riscv.
 

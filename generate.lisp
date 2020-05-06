@@ -2,51 +2,15 @@
 
 (in-package :ulisp-build)
 
-(defvar *ulisp-outfile* (asdf:system-relative-pathname "ulisp-build" "ulisp/ulisp.ino"))
-
-;; Generate *********************************************************************************************
-
-(defun write-no-comments (stream string comments)
-  (cond
-   (comments
-    (write-string string stream)
-    (terpri stream))
-   (t
-    (let ((start 0))
-      (loop
-       (let* ((com (search "/*" string :start2 start))
-              (ment (when com (search "*/" string :start2 com))))
-         (cond
-          ((and com ment (> (- ment com) 32)) (write-string string stream :start start :end com)
-           (setq start (+ ment 3))) ; Swallow return too
-          (t (write-string string stream :start start)
-             (terpri stream)
-             (return)))))))))
-
-(defun generate (&optional (platform :avr) (comments nil))
+(defun generate (output-file &optional (platform :avr))
+  "Generate uLisp .ino files using the facilities defined by the system."
  (let ((*ulisp-features* (get-features platform))
        (*platform* platform)
        (definitions *definitions*)) ; (case platform (:zero *definitions-zero*) (t *definitions*))
-   (flet ((include (section &optional (str *standard-output*))
-           (let ((special (intern (format nil "*~a-~a*" section platform) :ulisp-build))
-                 (default (intern (format nil "*~a*" section) :ulisp-build)))
-             (cond
-              ((boundp special) 
-               (let ((inc (eval special)))
-                 (cond
-                  ((listp inc) (map nil #'(lambda (x) (write-no-comments str x comments)) inc))
-                  (t (write-no-comments str inc comments)))))
-              ((boundp default) 
-               (let ((inc (eval default)))
-                 (cond
-                  ((listp inc) (map nil #'(lambda (x) (write-no-comments str x comments)) inc))
-                  (t (write-no-comments str inc comments)))))
-              (t nil)))))
     ;;
-     (with-open-file (*standard-output* #-lispworks *ulisp-outfile*
-                          #+lispworks (capi:prompt-for-file "Output File" :operation :save
-                                                            :pathname "/Users/david/Desktop/")
-                          :direction :output :if-does-not-exist :create :if-exists :supersede)
+   (with-open-file (*standard-output* output-file :direction :output
+                                                  :if-does-not-exist :create
+                                                  :if-exists :supersede)
     ;; Write preamble
 
     (write-section :header)
@@ -114,4 +78,4 @@
     (write-section :setup)
     (write-section :repl)
     (write-section :loop)
-  't))))
+  't)))
