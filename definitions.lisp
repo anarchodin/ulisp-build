@@ -2,11 +2,22 @@
 
 (in-package :ulisp-build)
 
+(defun filter-symbols (definitions)
+  "Remove symbols that have features not currently in *ulisp-features*."
+  (remove-duplicates
+   (mapcar #'(lambda (entry) (let ((enum (first entry))
+                                   (feature (fifth entry)))
+                               (if (keywordp feature)
+                                   (if (member feature *ulisp-features*)
+                                       enum)
+                                   enum)))
+           definitions) :from-end t))
+
 (defun print-enums (defs &optional (stream *standard-output*) (margin 90))
   "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
   (let ((*standard-output* (or stream *standard-output*))
         (*print-right-margin* margin)
-        (symbols (mapcar #'car (apply #'append (mapcar #'cadr defs)))))
+        (symbols (filter-symbols (apply #'append (mapcar #'cadr defs)))))
     (pprint-logical-block (nil nil)
       (write-string "enum function {")
       (terpri)

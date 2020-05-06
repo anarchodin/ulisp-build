@@ -37,7 +37,7 @@
       (TRACE NIL 0 1)
       (UNTRACE NIL 0 1)
       (FORMILLIS "for-millis" 1 127)
-      (WITHOUTPUTTOSTRING "with-output-to-string" 1 127)
+      (WITHOUTPUTTOSTRING "with-output-to-string" 1 127 :stringstream)
       (WITHSERIAL "with-serial" 1 127)
       (WITHI2C "with-i2c" 1 127)
       (WITHSPI "with-spi" 1 127)
