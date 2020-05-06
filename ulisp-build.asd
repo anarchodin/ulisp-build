@@ -10,6 +10,4 @@
                (:file "sections")
                (:file "preface")
                (:file "utilities")
-               (:file "prettyprint")
-               (:file "postscript")
                (:file "generate")))
