@@ -189,7 +189,7 @@ object *nextitem (gfun_t gfun) {
       clrflag(NOESC);
       return result;
     }
-#ifdef FLOAT
+#ifdef ARRAY
     else if (ch == '(') { LastChar = ch; return listtovector(read(gfun)); }
     else if (ch == '2' && (gfun() & ~0x20) == 'A')
       return listto2darray(read(gfun));
