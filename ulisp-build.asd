@@ -5,7 +5,6 @@
   :components ((:file "package")
                (:file "platforms")
                (:file "definitions")
-               (:file "extras")
                (:file "functions")
                (:file "sections")
                (:file "preface")
