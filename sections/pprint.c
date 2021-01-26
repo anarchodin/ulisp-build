@@ -12,13 +12,13 @@ void pcount (char c) {
   PrintCount++;
 }
 
-int atomwidth (object *obj) {
+uint8_t atomwidth (object *obj) {
   PrintCount = 0;
   printobject(obj, pcount);
   return PrintCount;
 }
 
-int hexwidth (object *obj) {
+uint8_t hexwidth (object *obj) {
   PrintCount = 0;
   pinthex(obj->integer, pcount);
   return PrintCount;

@@ -1,6 +1,6 @@
 #include "ulisp.h"
 
-void formaterr (object *formatstr, PGM_P string, int p) {
+void formaterr (object *formatstr, PGM_P string, uint8_t p) {
   pln(pserial); indent(4, ' ', pserial); printstring(formatstr, pserial); pln(pserial);
   indent(p+5, ' ', pserial); pserial('^');
   errorsub(FORMAT, string);
@@ -21,7 +21,7 @@ object *fn_format (object *args, object *env) {
   object *save = NULL;
   args = cddr(args);
   int len = stringlength(formatstr);
-  int n = 0, width = 0, w, bra = 0;
+  uint8_t n = 0, width = 0, w, bra = 0;
   char pad = ' ';
   bool tilde = false, comma, quote;
   while (n < len) {
@@ -52,12 +52,15 @@ object *fn_format (object *args, object *env) {
       else if (ch2 == 'A' || ch2 == 'S' || ch2 == 'D' || ch2 == 'G' || ch2 == 'X') {
         if (args == NULL) formaterr(formatstr, noargument, n);
         object *arg = first(args); args = cdr(args);
-        w = max(width-atomwidth(arg),0); tilde = false;
+        uint8_t aw = atomwidth(arg);
+        if (width < aw) w = 0; else w = width-aw;
+        tilde = false;
         if (ch2 == 'A') { prin1object(arg, pfun); indent(w, pad, pfun); }
         else if (ch2 == 'S') { printobject(arg, pfun); indent(w, pad, pfun); }
         else if (ch2 == 'D' || ch2 == 'G') { indent(w, pad, pfun); prin1object(arg, pfun); }
         else if (ch2 == 'X' && integerp(arg)) {
-          indent(max(width-hexwidth(arg),0), pad, pfun); pinthex(arg->integer, pfun);
+          uint8_t hw = hexwidth(arg); if (width < hw) w = 0; else w = width-hw;
+          indent(w, pad, pfun); pinthex(arg->integer, pfun);
         } else if (ch2 == 'X') { indent(w, pad, pfun); prin1object(arg, pfun); }
         tilde = false;
       } else formaterr(formatstr, PSTR("invalid directive"), n);

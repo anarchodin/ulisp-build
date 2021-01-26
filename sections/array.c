@@ -3,35 +3,38 @@
 int nextpower2 (int n) {
   n--; n |= n >> 1; n |= n >> 2; n |= n >> 4;
   n |= n >> 8; n |= n >> 16; n++;
-  return n;
+  return n<2 ? 2 : n;
 }
 
 object *buildarray (int n, int s, object *def) {
   int s2 = s>>1;
-  if (s2 == 1) { if (n == 2) return cons(def, def); else return cons(def, NULL); }
-  else if (n >= s2) return cons(buildarray(s2, s2, def), buildarray(n - s2, s2, def));
+  if (s2 == 1) {
+    if (n == 2) return cons(def, def);
+    else if (n == 1) return cons(def, NULL);
+    else return NULL;
+  } else if (n >= s2) return cons(buildarray(s2, s2, def), buildarray(n - s2, s2, def));
   else return cons(buildarray(n, s2, def), nil);
 }
 
-object *makearray (int xd, int yd, object *dimensions, object *def) {
-  int size = xd * yd;
+object *makearray (symbol_t name, object *dims, object *def) {
+  int size = 1;
+  object *dimensions = dims;
+  while (dims != NULL) {
+    int d = car(dims)->integer;
+    if (d < 0) error2(MAKEARRAY, PSTR("dimension can't be negative"));
+    size = size * d;
+    dims = cdr(dims);
+  }
   object *ptr = myalloc();
   ptr->type = ARRAY;
   object *tree = nil;
-  if (size != 0) tree = buildarray(size, max(nextpower2(size), 2), def);
+  if (size != 0) tree = buildarray(size, nextpower2(size), def);
   ptr->cdr = cons(tree, dimensions);
   return ptr;
 }
 
-object **getarray (symbol_t name, object *array, int x, int y) {
-  object *dimensions = cddr(array);
-  int xd, yd = 1;
-  xd = first(dimensions)->integer;
-  if (cdr(dimensions) != NULL) yd = second(dimensions)->integer;
-  int size = xd * yd;
-  int index = x * yd + y;
-  if (x >= xd || x < 0 || y >= yd || y < 0) error2(name, PSTR("index out of range"));
-  int mask = max(nextpower2(size), 2)>>1;
+object **arrayref (object *array, int index, int size) {
+  int mask = nextpower2(size)>>1;
   object **p = &car(cdr(array));
   while (mask) {
     if ((index & mask) == 0) p = &(car(*p)); else p = &(cdr(*p));
@@ -39,61 +42,70 @@ object **getarray (symbol_t name, object *array, int x, int y) {
   }
   return p;
 }
-
-object *listtovector (object *list) {
-  int xd = listlength(0, list);
-  object *array = makearray(xd, 1, cons(number(xd), NULL), NULL);
-  int p = 0;
-  while (list != NULL) {
-    object **loc = getarray(0, array, p++, 0);
-    *loc = first(list);
-    list = cdr(list);
+  
+object **getarray (symbol_t name, object *array, object *subs, object *env) {
+  int index = 0, size = 1, s;
+  object *dims = cddr(array);
+  while (dims != NULL && subs != NULL) {
+    int d = car(dims)->integer;
+    if (env) s = checkinteger(name, eval(car(subs), env)); else s = checkinteger(name, car(subs));
+    if (s < 0 || s >= d) error(name, PSTR("subscript out of range"), car(subs));
+    size = size * d;
+    index = index * d + s;
+    dims = cdr(dims); subs = cdr(subs);
   }
+  if (dims != NULL) error2(name, PSTR("too few subscripts"));
+  if (subs != NULL) error2(name, PSTR("too many subscripts"));
+  return arrayref(array, index, size);
+}
+
+void rslice (object *array, int size, int slice, object *dims, object *args) {
+  int d = first(dims)->integer;
+  for (int i = 0; i < d; i++) {
+    int index = slice * d + i;
+    if (cdr(dims) == NULL) {
+      if (args == NULL) error2(0, PSTR("initial contents don't match array type"));
+      object **p = arrayref(array, index, size);
+      *p = car(args);
+    } else rslice(array, size, index, cdr(dims), car(args));
+    args = cdr(args);
+  }
+}
+
+object *readarray (int d, object *args) {
+  object *list = args;
+  object *dims = NULL; object *head = NULL;
+  int size = 1;
+  for (int i = 0; i < d; i++) {
+    int l = listlength(0, list);
+    if (dims == NULL) { dims = cons(number(l), NULL); head = dims; }
+    else { cdr(dims) = cons(number(l), NULL); dims = cdr(dims); }
+    size = size * l;
+    if (list != NULL) list = car(list); 
+  }
+  object *array = makearray(0, head, NULL);
+  rslice(array, size, 0, head, args);
   return array;
 }
 
-object *listto2darray (object *list) {
-  int yd, xd = listlength(0, list);
-  if (list == NULL) yd = 0;
-  else if (listp(first(list))) yd = listlength(0, first(list));
-  else error2(0, PSTR("initial contents not 2d array"));
-  object *array = makearray(xd, yd, cons(number(xd), cons(number(yd), NULL)), NULL);
-  int x = 0;
-  while (list != NULL) {
-    object *item = first(list);
-    int y = 0;
-    while (item != NULL) {
-      object **loc = getarray(0, array, x, y++);
-      *loc = first(item);
-      item = cdr(item);
-    }
-    x++;
-    list = cdr(list);
+void pslice (object *array, int size, int slice, object *dims, pfun_t pfun) {
+  pfun('(');
+  int d = first(dims)->integer;
+  for (int i = 0; i < d; i++) {
+    if (i) pfun(' ');
+    int index = slice * d + i;
+    if (cdr(dims) == NULL) {
+      printobject(*arrayref(array, index, size), pfun);
+    } else pslice(array, size, index, cdr(dims), pfun);
   }
-  return array;
+  pfun(')');
 }
 
 void printarray (object *array, pfun_t pfun) {
   object *dimensions = cddr(array);
-  int xd = first(dimensions)->integer;
-  pfun('#');
-  if (cdr(dimensions) == NULL) {
-    pfun('(');
-    for (int x=0; x<xd; x++) {
-      if (x) pfun(' ');
-      printobject(*getarray(0, array, x, 0), pfun);
-    }
-  } else {
-    int yd = second(dimensions)->integer;
-    pfstring(PSTR("2A("), pfun);
-    for (int x=0; x<xd; x++) {
-      if (x) pfun(' '); pfun('(');
-      for (int y=0; y<yd; y++) {
-        if (y) pfun(' ');
-        printobject(*getarray(0, array, x, y), pfun);
-      }
-      pfun(')');
-    }  
-  }
-  pfun(')');
+  object *dims = dimensions;
+  int size = 1, n = 0;
+  while (dims != NULL) { size = size * car(dims)->integer; dims = cdr(dims); n++; }
+  pfun('#'); if (n > 1) { pint(n, pfun); pfun('A'); }
+  pslice(array, size, 0, dimensions, pfun);
 }

@@ -24,6 +24,7 @@ void loadfromlibrary (object *env) {
 }
 
 // For line editor
+const int TerminalWidth = 80;
 volatile int WritePtr = 0, ReadPtr = 0;
 const int KybdBufSize = 333; // 42*8 - 3
 char KybdBuf[KybdBufSize];
@@ -42,13 +43,26 @@ void hilight (char c) {
   Serial.write('\e'); Serial.write('['); Serial.write(c); Serial.write('m');
 }
 
-void Highlight (uint8_t p, uint8_t invert) {
+void Highlight (int p, int wp, uint8_t invert) {
+  wp = wp + 2; // Prompt
+#if defined (printfreespace)
+  int f = Freespace;
+  while (f) { wp++; f=f/10; }
+#endif
+  int line = wp/TerminalWidth;
+  int col = wp%TerminalWidth;
+  int targetline = (wp - p)/TerminalWidth;
+  int targetcol = (wp - p)%TerminalWidth;
+  int up = line-targetline, left = col-targetcol;
   if (p) {
-    esc(p, 'D');
+    if (up) esc(up, 'A');
+    if (col > targetcol) esc(left, 'D'); else esc(-left, 'C');
     if (invert) hilight('7');
-    Serial.write('(');
-    if (p>2) esc(p-2, 'C');
-    Serial.write(')');
+    Serial.write('('); Serial.write('\b');
+    // Go back
+    if (up) esc(up, 'B'); // Down
+    if (col > targetcol) esc(left, 'C'); else esc(-left, 'D');
+    Serial.write('\b'); Serial.write(')');
     if (invert) hilight('0');
   }
 }
@@ -56,9 +70,9 @@ void Highlight (uint8_t p, uint8_t invert) {
 void processkey (char c) {
   if (c == 27) { setflag(ESCAPE); return; }    // Escape key
 #if defined(vt100)
-  static uint8_t parenthesis = 0;
+  static int parenthesis = 0, wp = 0;
   // Undo previous parenthesis highlight
-  Highlight(parenthesis, 0);
+  Highlight(parenthesis, wp, 0);
   parenthesis = 0;
 #endif
   // Edit buffer
@@ -87,10 +101,10 @@ void processkey (char c) {
       if (c == ')') level++;
       if (c == '(') {
         level--;
-        if (level == 0) parenthesis = WritePtr-search-1;
+        if (level == 0) {parenthesis = WritePtr-search-1; wp = WritePtr; }
       }
     }
-    Highlight(parenthesis, 1);
+    Highlight(parenthesis, wp, 1);
   }
 #endif
   return;
@@ -190,9 +204,8 @@ object *nextitem (gfun_t gfun) {
       return result;
     }
 #ifdef ARRAY
-    else if (ch == '(') { LastChar = ch; return listtovector(read(gfun)); }
-    else if (ch == '2' && (gfun() & ~0x20) == 'A')
-      return listto2darray(read(gfun));
+    else if (ch == '(') { LastChar = ch; return readarray(1, read(gfun)); }
+    else if (ch >= '1' && ch <= '9' && (gfun() & ~0x20) == 'A') return readarray(ch - '0', read(gfun));
 #endif
     else error2(0, PSTR("illegal character after #"));
     ch = gfun();

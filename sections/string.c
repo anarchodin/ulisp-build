@@ -1,6 +1,6 @@
 // String utilities
 
-void indent (int spaces, char ch, pfun_t pfun) {
+void indent (uint8_t spaces, char ch, pfun_t pfun) {
   for (uint8_t i=0; i<spaces; i++) pfun(ch);
 }
 

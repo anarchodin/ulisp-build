@@ -12,5 +12,5 @@ void setup () {
   initworkspace();
   initenv();
   initsleep();
-  pfstring(PSTR("uLisp 3.2 Beta "), pserial); pln(pserial);
+  pfstring(PSTR("uLisp 3.2 "), pserial); pln(pserial);
 }

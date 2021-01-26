@@ -1,3 +1,5 @@
+// In-place operations
+
 object **place (symbol_t name, object *args, object *env) {
   if (atom(args)) return &cdr(findvalue(args, env));
   object* function = first(args);
@@ -29,14 +31,7 @@ object **place (symbol_t name, object *args, object *env) {
   if (issymbol(function, AREF)) {
     object *array = eval(second(args), env);
     if (!arrayp(array)) error(AREF, PSTR("first argument is not an array"), array);
-    object *dimensions = cddr(array);
-    args = cdr(args); 
-    int y = 0, x = checkinteger(AREF, eval(second(args), env));
-    if (listp(dimensions)) {
-      if (cddr(args) == NULL) error2(AREF, PSTR("array needs two subscripts"));
-      y = checkinteger(AREF, eval(third(args), env));
-    } else if (cddr(args) != NULL) error2(AREF, PSTR("array needs one subscript"));
-    return getarray(AREF, array, x, y);
+    return getarray(AREF, array, cddr(args), env);
   }
 #endif
 

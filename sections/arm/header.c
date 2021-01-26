@@ -1,5 +1,5 @@
 /* uLisp ARM 3.2 - www.ulisp.com
-   David Johnson-Davies - www.technoblogy.com - unreleased
+   David Johnson-Davies - www.technoblogy.com - 29th April 2020
 
    Licensed under the MIT license: https://opensource.org/licenses/MIT
 */
@@ -11,7 +11,6 @@ const char LispLibrary[] PROGMEM = "";
 
 // #define resetautorun
 #define printfreespace
-#define serialmonitor
 // #define printgcs
 // #define sdcardsupport
 // #define gfxsupport
@@ -42,17 +41,7 @@ const char LispLibrary[] PROGMEM = "";
 #define TFT_MOSI      41  // Data out
 #define TFT_SCLK      42  // Clock out
 
-class Technoblogy_ST7735 : public Adafruit_ST7735 {       
-public:
-  Technoblogy_ST7735(int8_t cs, int8_t dc, int8_t mosi, int8_t sclk, int8_t rst);
-  uint16_t getPixel(uint16_t x, uint16_t y);
-  void xorPixel(uint16_t x, uint16_t y, uint16_t color);
-};
-
-Technoblogy_ST7735::Technoblogy_ST7735(int8_t cs, int8_t dc, int8_t mosi, int8_t sclk, int8_t rst)
-    : Adafruit_ST7735(cs, dc, mosi, sclk, rst) {}
-
-Technoblogy_ST7735 tft = Technoblogy_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 #endif
 
 #if defined(sdcardsupport)
