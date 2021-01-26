@@ -18,6 +18,6 @@
 ;; features to include. Currently defined there are :arm, :avr, and :riscv.
 
 (format t "Building uLisp for variant ~a.~%" *variant*)
-(generate *variant*)
+(generate *output-file* *variant*)
 
 #+ecl (ext:quit)
