@@ -1,12 +1,12 @@
 # uLisp
 
-[uLisp](http://www.ulisp.com) is a version the Lisp programming language,
+[uLisp](http://www.ulisp.com) is a version of the Lisp programming language,
 primarily targeting microcontrollers. See the website for more details.
 
-You have stumbled across the core source of uLisp. This repository contains two
-main components: The (mostly) C code that gets concatenated into Arduino
-sketches for uLisp releases, and the Common Lisp code that handles this
-concatenation (and some automatic code generation).
+You have stumbled across a reworking of the core source of uLisp. This
+repository contains two main components: The (mostly) C code that gets
+concatenated into Arduino sketches for uLisp releases, and the Common Lisp code
+that handles this concatenation (and some automatic code generation).
 
 The two are in the process of being teased apart. Once that's further underway,
 there'll be better documentation here.
@@ -32,9 +32,6 @@ example use, which also uses [arduino-cli][arduino] to compile uLisp for the
 
 ## Licencing
 
-The C code has (mostly) been published under MIT licence by David
-Johnson-Davies. The Common Lisp code has _not_, and was supplied privately to
-Herbert Snorrason just prior to the release of uLisp 3.2 in April 2020.
-
-The repository will remain private until its publication has been cleared by the
-original author.
+[uLisp's licence](http://www.ulisp.com/show?1B83) is fairly clear. The
+alterations made in this repository should be considered available under the
+same terms.
