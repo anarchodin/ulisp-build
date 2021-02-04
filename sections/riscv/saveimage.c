@@ -14,8 +14,8 @@ void SDWriteInt (File file, uintptr_t data) {
 #endif
 
 int saveimage (object *arg) {
-  uintptr_t imagesize = compactimage(&arg);
 #if defined(sdcardsupport)
+  uintptr_t imagesize = compactimage(&arg);
   if (!SD.begin(SDCARD_SS_PIN)) error2(SAVEIMAGE, PSTR("problem initialising SD card"));
   File file;
   if (stringp(arg)) {
@@ -30,7 +30,8 @@ int saveimage (object *arg) {
   SDWriteInt(file, (uintptr_t)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SDWriteInt(file, (uintptr_t)SymbolTop);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) file.write(SymbolTable[i]);
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) file.write(SymbolTable[i]);
   #endif
   for (int i=0; i<CODESIZE; i++) file.write(MyCode[i]);
   for (unsigned int i=0; i<imagesize; i++) {
@@ -69,7 +70,8 @@ int loadimage (object *arg) {
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)SDReadInt(file);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = file.read();
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = file.read();
   #endif
   for (int i=0; i<CODESIZE; i++) MyCode[i] = file.read();
   for (int i=0; i<imagesize; i++) {

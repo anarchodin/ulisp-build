@@ -12,5 +12,9 @@ void setup () {
   initworkspace();
   initenv();
   initsleep();
-  pfstring(PSTR("uLisp 3.2 "), pserial); pln(pserial);
+  pfstring(PSTR("uLisp 3.4 "), pserial); pln(pserial);
+}
+void initenv () {
+  GlobalEnv = NULL;
+  tee = symbol(TEE);
 }

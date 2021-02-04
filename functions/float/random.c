@@ -6,4 +6,5 @@ object *fn_random (object *args, object *env) {
   if (integerp(arg)) return number(random(arg->integer));
   else if (floatp(arg)) return makefloat((float)rand()/(float)(RAND_MAX/(arg->single_float)));
   else error(RANDOM, notanumber, arg);
+  return nil;
 }

@@ -9,6 +9,6 @@ object *fn_gc (object *obj, object *env) {
   pint(Freespace - initial, pserial);
   pfstring(PSTR(" bytes, Time: "), pserial);
   pint(elapsed, pserial);
-  pfstring(PSTR(" us\r"), pserial);
+  pfstring(PSTR(" us\n"), pserial);
   return nil;
 }

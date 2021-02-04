@@ -2,8 +2,10 @@
 
 void initgfx () {
 #if defined(gfxsupport)
-  tft.begin(15000000, COLOR_BLACK);
-  tft.setRotation(2);
+  Wire.begin();
+  tft.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+  tft.fillScreen(COLOR_BLACK);
+  tft.display();
 #endif
 }
 

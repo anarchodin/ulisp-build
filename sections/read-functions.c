@@ -18,7 +18,9 @@ void loadfromlibrary (object *env) {
   GlobalStringIndex = 0;
   object *line = read(glibrary);
   while (line != NULL) {
+    push(line, GCStack);
     eval(line, env);
+    pop(GCStack);
     line = read(glibrary);
   }
 }
@@ -134,8 +136,6 @@ int gserial () {
 #endif
 }
 
-#define issp(x) (x == ' ' || x == '\n' || x == '\r' || x == '\t')
-
 object *nextitem (gfun_t gfun) {
   int ch = gfun();
   while(issp(ch)) ch = gfun();
@@ -205,6 +205,7 @@ object *nextitem (gfun_t gfun) {
     }
 #ifdef ARRAY
     else if (ch == '(') { LastChar = ch; return readarray(1, read(gfun)); }
+    else if (ch == '*') return readbitarray(gfun);
     else if (ch >= '1' && ch <= '9' && (gfun() & ~0x20) == 'A') return readarray(ch - '0', read(gfun));
 #endif
     else error2(0, PSTR("illegal character after #"));
@@ -293,7 +294,7 @@ object *nextitem (gfun_t gfun) {
 
   int x = builtin(buffer);
   if (x == NIL) return nil;
-  if (x < ENDFUNCTIONS) return newsymbol(x);
+  if (x < ENDKEYWORDS) return newsymbol(x);
   else if (index <= SYMLENGTH && valid40(buffer)) return newsymbol(pack40(buffer));
   else return newsymbol(longsymbol(buffer));
 }

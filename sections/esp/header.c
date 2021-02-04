@@ -1,20 +1,22 @@
-/* uLisp ESP Version 3.1 - www.ulisp.com
-   David Johnson-Davies - www.technoblogy.com - 28th February 2020
+/* uLisp ESP Version 3.4 - www.ulisp.com
+   David Johnson-Davies - www.technoblogy.com - 4th January 2021
 
    Licensed under the MIT license: https://opensource.org/licenses/MIT
 */
 
 // Lisp Library
-const char LispLibrary[] = "";
+const char LispLibrary[] PROGMEM = "";
 
 // Compile options
 
 // #define resetautorun
 #define printfreespace
-#define serialmonitor
 // #define printgcs
 // #define sdcardsupport
+// #define gfxsupport
 // #define lisplibrary
+// #define lineeditor
+// #define vt100
 
 // Includes
 
@@ -28,6 +30,17 @@ const char LispLibrary[] = "";
   #include <ESP8266WiFi.h>
 #elif defined (ESP32)
   #include <WiFi.h>
+#endif
+
+#if defined(gfxsupport)
+#include <Adafruit_GFX.h>    // Core graphics library
+#include <Adafruit_SSD1306.h>
+#define COLOR_WHITE 1
+#define COLOR_BLACK 0
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+#define OLED_RESET     4
+Adafruit_SSD1306 tft(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire);
 #endif
 
 #if defined(sdcardsupport)

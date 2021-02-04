@@ -1,5 +1,11 @@
 // Global variables
 
+object Workspace[WORKSPACESIZE] WORDALIGNED MEMBANK;
+char SymbolTable[SYMBOLTABLESIZE];
+#if defined(CODESIZE)
+RAMFUNC uint8_t MyCode[CODESIZE] WORDALIGNED;
+#endif
+
 jmp_buf exception;
 unsigned int Freespace = 0;
 object *Freelist;

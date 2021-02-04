@@ -1,6 +1,6 @@
 // Sleep
 
-#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKRZERO)
+#if defined(CPU_ATSAMD21)
 void WDT_Handler(void) {
   // ISR for watchdog early warning
   WDT->CTRL.bit.ENABLE = 0;        // Disable watchdog
@@ -10,7 +10,7 @@ void WDT_Handler(void) {
 #endif
 
 void initsleep () {
-#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKRZERO)
+#if defined(CPU_ATSAMD21)
  // One-time initialization of watchdog timer.
 
   // Generic clock generator 2, divisor = 32 (2^(DIV+1))
@@ -36,7 +36,7 @@ void initsleep () {
 }
 
 void sleep (int secs) {
-#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKRZERO)
+#if defined(CPU_ATSAMD21)
   WDT->CTRL.reg = 0;                     // Disable watchdog for config
   while(WDT->STATUS.bit.SYNCBUSY);
   WDT->INTENSET.bit.EW   = 1;            // Enable early warning interrupt

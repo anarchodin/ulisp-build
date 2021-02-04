@@ -47,4 +47,5 @@ object *fn_divide (object *args, object *env) {
     }
     return number(result); 
   } else error(DIVIDE, notanumber, arg);
+  return nil;
 }

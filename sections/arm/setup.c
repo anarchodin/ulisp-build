@@ -9,6 +9,7 @@ void initgfx () {
   tft.fillScreen(ST77XX_BLACK);
 #endif
 }
+
 void initenv () {
   GlobalEnv = NULL;
   tee = symbol(TEE);
@@ -22,5 +23,5 @@ void setup () {
   initenv();
   initsleep();
   initgfx();
-  pfstring(PSTR("uLisp 3.2 "), pserial); pln(pserial);
+  pfstring(PSTR("uLisp 3.4 "), pserial); pln(pserial);
 }

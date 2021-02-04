@@ -1,12 +1,24 @@
 // Main evaluator
 
+// TODO: These linker variables could probably be simplified.
+
 #if defined(__arm__)
-extern uint32_t end;  // Bottom of stack
+
+#if defined(ARDUINO_TEENSY40) || defined(ARDUINO_TEENSY41)
+#define ENDSTACK _ebss
+#else
+#define ENDSTACK end
+#endif
+
+extern uint32_t ENDSTACK;  // Bottom of stack
+
 #elif defined(__riscv)
 char end[0];
+
 #elif defined(__AVR__)
 extern char __bss_end[];
-#else
+
+#else /* fallthrough */
 uint8_t End;
 #endif
 
@@ -24,23 +36,21 @@ object *eval (object *form, object *env) {
   //yield(); // Needed on ESP8266 to avoid Soft WDT Reset
   // Enough space?
 #if defined(__arm__)
-  // Serial.println((uint32_t)sp - (uint32_t)&end);
-  if (((uint32_t)sp - (uint32_t)&end) < STACKDIFF) error2(0, PSTR("Stack overflow"));
+  // Serial.println((uint32_t)sp - (uint32_t)&ENDSTACK); // Find best STACKDIFF value
+  if (((uint32_t)sp - (uint32_t)&ENDSTACK) < STACKDIFF) error2(0, PSTR("stack overflow"));
 #elif defined(__riscv)
-  // Serial.println((uintptr_t)sp - (uintptr_t)end);
+  // Serial.println((uintptr_t)sp - (uintptr_t)end); // Find best STACKDIFF value
   if ((uintptr_t)sp - (uintptr_t)end < STACKDIFF) error2(0, PSTR("Stack overflow"));
 #elif defined(__AVR__)
-  // Serial.println((uint16_t)sp - (uint16_t)__bss_end);
-  if ((uint16_t)sp - (uint16_t)__bss_end < STACKDIFF) error2(0, PSTR("Stack overflow"));
+  // Serial.println((uint16_t)sp - (uint16_t)__bss_end); // Find best STACKDIFF value
+  if ((uint16_t)sp - (uint16_t)__bss_end < STACKDIFF) error2(0, PSTR("stack overflow"));
 #else
   if (End != 0xA5) error2(0, PSTR("Stack overflow"));
 #endif
-  if (Freespace <= WORKSPACESIZE>>4) gc(form, env);
+  if (Freespace <= WORKSPACESIZE>>4) gc(form, env);      // GC when 1/16 of workspace left
   // Escape
   if (tstflag(ESCAPE)) { clrflag(ESCAPE); error2(0, PSTR("Escape!"));}
-  #if defined (serialmonitor)
   if (!tstflag(NOESC)) testescape();
-  #endif
 
   if (form == NULL) return nil;
 
@@ -53,7 +63,7 @@ object *eval (object *form, object *env) {
     if (pair != NULL) return cdr(pair);
     pair = value(name, GlobalEnv);
     if (pair != NULL) return cdr(pair);
-    else if (name <= ENDFUNCTIONS) return form;
+    else if (name <= ENDKEYWORDS) return form;
     error(0, PSTR("undefined"), form);
   }
 
@@ -74,8 +84,9 @@ object *eval (object *form, object *env) {
 
     if ((name == LET) || (name == LETSTAR)) {
       int TCstart = TC;
+      if (args == NULL) error2(name, noargument);
       object *assigns = first(args);
-      if (!listp(assigns)) error(name, PSTR("first argument is not a list"), assigns);
+      if (!listp(assigns)) error(name, notalist, assigns);
       object *forms = cdr(args);
       object *newenv = env;
       push(newenv, GCStack);
@@ -116,7 +127,7 @@ object *eval (object *form, object *env) {
       goto EVAL;
     }
 
-    if (name < SPECIAL_FORMS) error2((uintptr_t)function, PSTR("can't be used as a function"));
+    if ((name < SPECIAL_FORMS) || (name > ENDFUNCTIONS)) error2(name, PSTR("can't be used as a function"));
   }
 
   // Evaluate the parameters - result in head
@@ -149,9 +160,11 @@ object *eval (object *form, object *env) {
   }
 
   if (consp(function)) {
+    symbol_t name = 0;
+    if (!listp(fname)) name = fname->name;
 
     if (issymbol(car(function), LAMBDA)) {
-      form = closure(TCstart, fname->name, NULL, cdr(function), args, &env);
+      form = closure(TCstart, name, NULL, cdr(function), args, &env);
       pop(GCStack);
       int trace = tracing(fname->name);
       if (trace) {
@@ -170,7 +183,7 @@ object *eval (object *form, object *env) {
 
     if (issymbol(car(function), CLOSURE)) {
       function = cdr(function);
-      form = closure(TCstart, fname->name, car(function), cdr(function), args, &env);
+      form = closure(TCstart, name, car(function), cdr(function), args, &env);
       pop(GCStack);
       TC = 1;
       goto EVAL;

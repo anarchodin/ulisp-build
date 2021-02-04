@@ -5,12 +5,12 @@ void I2Cinit (bool enablePullup) {
   Wire.begin();
 }
 
-inline int I2Cread () {
+int I2Cread () {
   return Wire.read();
 }
 
-inline bool I2Cwrite (uint8_t data) {
-  return Wire.write(data);
+void I2Cwrite (uint8_t data) {
+  Wire.write(data);
 }
 
 bool I2Cstart (uint8_t address, uint8_t read) {

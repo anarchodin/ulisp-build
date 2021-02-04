@@ -8,7 +8,7 @@ object *fn_apply (object *args, object *env) {
     last = cdr(last);
   }
   object *arg = car(last);
-  if (!listp(arg)) error(APPLY, PSTR("last argument is not a list"), arg);
+  if (!listp(arg)) error(APPLY, notalist, arg);
   cdr(previous) = arg;
   return apply(APPLY, first(args), cdr(args), env);
 }

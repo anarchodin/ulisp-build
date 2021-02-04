@@ -1,10 +1,10 @@
 // Interrupts
 
-#if defined(__AVR_ATmega328P__)
+#if defined(CPU_ATmega328P)
 #define NINTERRUPTS 2+1
-#elif defined(__AVR_ATmega2560__)
+#elif defined(CPU_ATmega2560)
 #define NINTERRUPTS 8+1
-#elif defined(__AVR_ATmega1284P__)
+#elif defined(CPU_ATmega1284P)
 #define NINTERRUPTS 3+1
 #endif
 
@@ -39,9 +39,9 @@ void interrupt (int n) {
 //ISR(TIMER1_OVF_vect) { interrupt(0); }
 ISR(INT0_vect) { interrupt(0); }
 ISR(INT1_vect) { interrupt(1); }
-#if defined(__AVR_ATmega1284P__)
+#if defined(CPU_ATmega1284P)
 ISR(INT2_vect) { interrupt(2); }
-#elif defined(__AVR_ATmega2560__)
+#elif defined(CPU_ATmega2560)
 ISR(INT2_vect) { interrupt(2); }
 ISR(INT3_vect) { interrupt(3); }
 ISR(INT4_vect) { interrupt(4); }

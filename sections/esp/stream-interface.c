@@ -5,7 +5,7 @@ inline int serial1read () { while (!Serial1.available()) testescape(); return Se
 #if defined(sdcardsupport)
 File SDpfile, SDgfile;
 inline int SDread () {
-  if (LastChar) { 
+  if (LastChar) {
     char temp = LastChar;
     LastChar = 0;
     return temp;
@@ -18,7 +18,7 @@ WiFiClient client;
 WiFiServer server(80);
 
 inline int WiFiread () {
-  if (LastChar) { 
+  if (LastChar) {
     char temp = LastChar;
     LastChar = 0;
     return temp;
@@ -63,6 +63,9 @@ inline void WiFiwrite (char c) { client.write(c); }
 #if defined(sdcardsupport)
 inline void SDwrite (char c) { SDpfile.write(c); }
 #endif
+#if defined(gfxsupport)
+inline void gfxwrite (char c) { tft.write(c); tft.display(); }
+#endif
 
 pfun_t pstreamfun (object *args) {
   int streamtype = SERIALSTREAM;
@@ -77,9 +80,15 @@ pfun_t pstreamfun (object *args) {
   else if (streamtype == SERIALSTREAM) {
     if (address == 0) pfun = pserial;
     else if (address == 1) pfun = serial1write;
-  }   
+  }
+  else if (streamtype == STRINGSTREAM) {
+    pfun = pstr;
+  }
   #if defined(sdcardsupport)
   else if (streamtype == SDSTREAM) pfun = (pfun_t)SDwrite;
+  #endif
+  #if defined(gfxsupport)
+  else if (streamtype == GFXSTREAM) pfun = (pfun_t)gfxwrite;
   #endif
   else if (streamtype == WIFISTREAM) pfun = (pfun_t)WiFiwrite;
   else error2(0, PSTR("unknown stream type"));

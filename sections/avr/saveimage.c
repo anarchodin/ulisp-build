@@ -27,7 +27,8 @@ unsigned int saveimage (object *arg) {
   SDWriteInt(file, (uintptr_t)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SDWriteInt(file, (uintptr_t)SymbolTop);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) file.write(SymbolTable[i]);
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) file.write(SymbolTable[i]);
   #endif
   for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
@@ -38,7 +39,8 @@ unsigned int saveimage (object *arg) {
   return imagesize;
 #else
   if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, invalidarg, arg);
-  int bytesneeded = imagesize*4 + SYMBOLTABLESIZE + 10;
+  int SymbolUsed = SymbolTop - SymbolTable;
+  int bytesneeded = imagesize*4 + SymbolUsed + 10;
   if (bytesneeded > EEPROMSIZE) error(SAVEIMAGE, PSTR("image size too large"), number(imagesize));
   unsigned int addr = 0;
   EEPROMWriteInt(&addr, (unsigned int)arg);
@@ -47,7 +49,7 @@ unsigned int saveimage (object *arg) {
   EEPROMWriteInt(&addr, (unsigned int)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   EEPROMWriteInt(&addr, (unsigned int)SymbolTop);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) EEPROM.write(addr++, SymbolTable[i]);
+  for (int i=0; i<SymbolUsed; i++) EEPROM.write(addr++, SymbolTable[i]);
   #endif
   for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
@@ -84,7 +86,8 @@ unsigned int loadimage (object *arg) {
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)SDReadInt(file);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = file.read();
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = file.read();
   #endif
   for (int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
@@ -103,7 +106,8 @@ unsigned int loadimage (object *arg) {
   GCStack = (object *)EEPROMReadInt(&addr);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)EEPROMReadInt(&addr);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = EEPROM.read(addr++);
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = EEPROM.read(addr++);
   #endif
   for (int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];

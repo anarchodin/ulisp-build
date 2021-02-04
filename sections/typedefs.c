@@ -23,6 +23,7 @@ typedef struct sobject {
 } object;
 
 typedef object *(*fn_ptr_type)(object *, object *);
+typedef void (*mapfun_t)(object *, object **);
 #ifdef CODE
 typedef int (*intfn_ptr_type)(int w, int x, int y, int z);
 #endif
@@ -35,7 +36,7 @@ typedef struct {
 
 typedef int (*gfun_t)();
 typedef void (*pfun_t)(char);
-#if defined(__AVR_ATmega328P__) || defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1284P__)
+#if defined(CPU_ATmega328P) || defined(CPU_ATmega2560) || defined(CPU_ATmega1284P) || defined(CPU_AVR128DA48)
 typedef int BitOrder;
 #endif
 typedef int PinMode;

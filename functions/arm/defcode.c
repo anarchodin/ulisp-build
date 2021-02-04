@@ -1,6 +1,7 @@
 #include "ulisp.h"
 
 object *sp_defcode (object *args, object *env) {
+#if defined(CODESIZE)
   setflag(NOESC);
   checkargs(DEFCODE, args);
   object *var = first(args);
@@ -96,4 +97,8 @@ object *sp_defcode (object *args, object *env) {
   else push(cons(var, val), GlobalEnv);
   clrflag(NOESC);
   return var;
+#else
+  error2(DEFCODE, PSTR("not available"));
+  return nil;
+#endif
 }

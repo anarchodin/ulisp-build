@@ -3,14 +3,21 @@
 object *fn_makearray (object *args, object *env) {
   (void) env;
   object *def = nil;
+  bool bitp = false;
   object *dims = first(args);
   if (dims == NULL) error2(MAKEARRAY, PSTR("dimensions can't be nil"));
   else if (atom(dims)) dims = cons(dims, NULL);
-  if (cdr(args) != NULL) {
-    object *var = second(args);
-    if (!symbolp(var) || var->name != INITIALELEMENT)
-      error(MAKEARRAY, PSTR("illegal second argument"), var); 
-    if (cddr(args) != NULL) def = third(args);
+  args = cdr(args);
+  while (args != NULL && cdr(args) != NULL) {
+    object *var = first(args);
+    if (issymbol(first(args), INITIALELEMENT)) def = second(args);
+    else if (issymbol(first(args), ELEMENTTYPE) && issymbol(second(args), BIT)) bitp = true;
+    else error(MAKEARRAY, PSTR("argument not recognised"), var); 
+    args = cddr(args);
   }
-  return makearray(MAKEARRAY, dims, def);
+  if (bitp) {
+    if (def == nil) def = number(0);
+    else def = number(-checkbitvalue(MAKEARRAY, def)); // 1 becomes all ones
+  }
+  return makearray(MAKEARRAY, dims, def, bitp);
 }

@@ -1,20 +1,20 @@
 // I2C interface
 
-#if defined(__AVR_ATmega328P__)
+#if defined(CPU_ATmega328P)
 uint8_t const TWI_SDA_PIN = 18;
 uint8_t const TWI_SCL_PIN = 19;
-#elif defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#elif defined(CPU_ATmega1280) || defined(CPU_ATmega2560)
 uint8_t const TWI_SDA_PIN = 20;
 uint8_t const TWI_SCL_PIN = 21;
-#elif defined(__AVR_ATmega644P__) || defined(__AVR_ATmega1284P__)
+#elif defined(CPU_ATmega644P) || defined(CPU_ATmega1284P)
 uint8_t const TWI_SDA_PIN = 17;
 uint8_t const TWI_SCL_PIN = 16;
-#elif defined(__AVR_ATmega32U4__)
+#elif defined(CPU_ATmega32U4)
 uint8_t const TWI_SDA_PIN = 6;
 uint8_t const TWI_SCL_PIN = 5;
 #endif
 
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
 uint32_t const FREQUENCY = 400000L;  // Hardware I2C clock in Hz
 uint32_t const T_RISE = 300L;        // Rise time
 #else
@@ -28,8 +28,8 @@ uint8_t const I2C_READ = 1;
 uint8_t const I2C_WRITE = 0;
 #endif
 
-void I2Cinit(bool enablePullup) {
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+void I2Cinit (bool enablePullup) {
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
   if (enablePullup) {
     pinMode(PIN_WIRE_SDA, INPUT_PULLUP);
     pinMode(PIN_WIRE_SCL, INPUT_PULLUP);
@@ -48,8 +48,8 @@ void I2Cinit(bool enablePullup) {
 #endif
 }
 
-int I2Cread() {
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+int I2Cread () {
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
   if (I2CCount != 0) I2CCount--;
   while (!(TWI0.MSTATUS & TWI_RIF_bm));                               // Wait for read interrupt flag
   uint8_t data = TWI0.MDATA;
@@ -65,8 +65,8 @@ int I2Cread() {
 #endif
 }
 
-bool I2Cwrite(uint8_t data) {
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+bool I2Cwrite (uint8_t data) {
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
   while (!(TWI0.MSTATUS & TWI_WIF_bm));                               // Wait for write interrupt flag
   TWI0.MDATA = data;
   TWI0.MCTRLB = TWI_MCMD_RECVTRANS_gc;                                // Do nothing
@@ -79,8 +79,8 @@ bool I2Cwrite(uint8_t data) {
 #endif
 }
 
-bool I2Cstart(uint8_t address, uint8_t read) {
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+bool I2Cstart (uint8_t address, uint8_t read) {
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
   TWI0.MADDR = address<<1 | read;                                     // Send START condition
   while (!(TWI0.MSTATUS & (TWI_WIF_bm | TWI_RIF_bm)));                // Wait for write or read interrupt flag
   if ((TWI0.MSTATUS & TWI_ARBLOST_bm)) return false;                  // Return false if arbitration lost or bus error
@@ -103,7 +103,7 @@ bool I2Crestart (uint8_t address, uint8_t read) {
 }
 
 void I2Cstop (uint8_t read) {
-#if defined(__AVR_ATmega4809__) || defined(ARDUINO_AVR_ATmega4809)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
   (void) read;
   TWI0.MCTRLB = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;                     // Send STOP
 #else

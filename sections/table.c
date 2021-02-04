@@ -2,7 +2,7 @@
 
 int builtin (char* n) {
   int entry = 0;
-  while (entry < ENDFUNCTIONS) {
+  while (entry < ENDKEYWORDS) {
 #ifdef NEEDS_PROGMEM
     if (strcasecmp_P(n, (char*)pgm_read_word(&lookup_table[entry].string)) == 0)
 #else
@@ -11,7 +11,7 @@ int builtin (char* n) {
       return entry;
     entry++;
   }
-  return ENDFUNCTIONS;
+  return ENDKEYWORDS;
 }
 
 int longsymbol (char *buffer) {
@@ -39,12 +39,16 @@ intptr_t lookupfn (symbol_t name) {
 #endif
 }
 
-void checkminmax (symbol_t name, int nargs) {
+uint8_t getminmax (symbol_t name) {
 #ifdef NEEDS_PROGMEM
-  uint8_t minmax = pgm_read_byte(&lookup_table[name].minmax);
+  return pgm_read_byte(&lookup_table[name].minmax);
 #else
-  uint8_t minmax = lookup_table[name].minmax;
-#endif
+  return lookup_table[name].minmax;
+#endif  
+}
+
+void checkminmax (symbol_t name, int nargs) {
+  uint8_t minmax = getminmax(name);
   if (nargs<(minmax >> 4)) error2(name, toofewargs);
   if ((minmax & 0x0f) != 0x0f && nargs>(minmax & 0x0f)) error2(name, toomanyargs);
 }

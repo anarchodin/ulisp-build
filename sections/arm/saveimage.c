@@ -15,7 +15,7 @@ void SDWriteInt (File file, int data) {
 #define READID        0x90
 
 // Arduino pins used for dataflash
-#if defined(ARDUINO_ITSYBITSY_M0)
+#if defined(ARDUINO_ITSYBITSY_M0) || defined(ARDUINO_SAMD_FEATHER_M0_EXPRESS)
 const int sck = 38, ssel = 39, mosi = 37, miso = 36;
 #elif defined(EXTERNAL_FLASH_USE_QSPI)
 const int sck = PIN_QSPI_SCK, ssel = PIN_QSPI_CS, mosi = PIN_QSPI_IO0, miso = PIN_QSPI_IO1;
@@ -113,15 +113,15 @@ void FlashWriteInt (uint32_t *addr, int data) {
 #endif
 
 int saveimage (object *arg) {
-  unsigned int imagesize = compactimage(&arg);
 #if defined(sdcardsupport)
+  unsigned int imagesize = compactimage(&arg);
   SD.begin(SDCARD_SS_PIN);
   File file;
   if (stringp(arg)) {
     file = SD.open(MakeFilename(arg), O_RDWR | O_CREAT | O_TRUNC);
     arg = NULL;
   } else if (arg == NULL || listp(arg)) file = SD.open("ULISP.IMG", O_RDWR | O_CREAT | O_TRUNC);
-  else error(SAVEIMAGE, PSTR("illegal argument"), arg);
+  else error(SAVEIMAGE, invalidarg, arg);
   if (!file) error2(SAVEIMAGE, PSTR("problem saving to SD card"));
   SDWriteInt(file, (uintptr_t)arg);
   SDWriteInt(file, imagesize);
@@ -129,7 +129,8 @@ int saveimage (object *arg) {
   SDWriteInt(file, (uintptr_t)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SDWriteInt(file, (uintptr_t)SymbolTop);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) file.write(SymbolTable[i]);
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) file.write(SymbolTable[i]);
   #endif
   for (int i=0; i<CODESIZE; i++) file.write(MyCode[i]);
   for (unsigned int i=0; i<imagesize; i++) {
@@ -140,10 +141,12 @@ int saveimage (object *arg) {
   file.close();
   return imagesize;
 #elif defined(DATAFLASHSIZE)
-  if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, PSTR("illegal argument"), arg);
+  unsigned int imagesize = compactimage(&arg);
+  if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, invalidarg, arg);
   if (!FlashSetup()) error2(SAVEIMAGE, PSTR("no DataFlash found."));
   // Save to DataFlash
-  int bytesneeded = 20 + SYMBOLTABLESIZE + CODESIZE + imagesize*8;
+  int SymbolUsed = SymbolTop - SymbolTable;
+  int bytesneeded = 20 + SymbolUsed + CODESIZE + imagesize*8;
   if (bytesneeded > DATAFLASHSIZE) error(SAVEIMAGE, PSTR("image size too large"), number(imagesize));
   uint32_t addr = 0;
   FlashBeginWrite((bytesneeded+65535)/65536);
@@ -153,7 +156,7 @@ int saveimage (object *arg) {
   FlashWriteInt(&addr, (uintptr_t)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   FlashWriteInt(&addr, (uintptr_t)SymbolTop);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) FlashWriteByte(&addr, SymbolTable[i]);
+  for (int i=0; i<SymbolUsed; i++) FlashWriteByte(&addr, SymbolTable[i]);
   #endif
   for (int i=0; i<CODESIZE; i++) FlashWriteByte(&addr, MyCode[i]);
   for (unsigned int i=0; i<imagesize; i++) {
@@ -198,7 +201,8 @@ int loadimage (object *arg) {
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)SDReadInt(file);
-  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = file.read();
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = file.read();
   #endif
   for (int i=0; i<CODESIZE; i++) MyCode[i] = file.read();
   for (int i=0; i<imagesize; i++) {
@@ -219,7 +223,8 @@ int loadimage (object *arg) {
   GCStack = (object *)FlashReadInt();
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)FlashReadInt();
-  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = FlashReadByte();
+  int SymbolUsed = SymbolTop - SymbolTable;
+  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = FlashReadByte();
   #endif
   for (int i=0; i<CODESIZE; i++) MyCode[i] = FlashReadByte();
   for (int i=0; i<imagesize; i++) {
@@ -253,7 +258,7 @@ void autorunimage () {
   FlashBeginRead();
   object *autorun = (object *)FlashReadInt();
   FlashEndRead();
-  if (autorun != NULL && (unsigned int)autorun != 0xFFFF) {
+  if (autorun != NULL && (unsigned int)autorun != 0xFFFFFFFF) {
     loadimage(nil);
     apply(0, autorun, NULL, NULL);
   }

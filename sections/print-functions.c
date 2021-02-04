@@ -24,17 +24,28 @@ void pcharacter (char c, pfun_t pfun) {
     pfun('#'); pfun('\\');
     if (c > 32) pfun(c);
     else {
+      #ifdef NEEDS_PROGMEM
+      PGM_P p = ControlCodes;
+      while (c > 0) {p = p + strlen_P(p) + 1; c--; }
+      #else
       const char *p = ControlCodes;
       while (c > 0) {p = p + strlen(p) + 1; c--; }
+      #endif
       pfstring(p, pfun);
     }
   }
 }
 
+/*
+  pstring - prints a C string to the specified print stream
+*/
 void pstring (char *s, pfun_t pfun) {
   while (*s) pfun(*s++);
 }
 
+/*
+  printstring - prints a Lisp string to the specified print stream
+*/
 void printstring (object *form, pfun_t pfun) {
   if (tstflag(PRINTREADABLY)) pfun('"');
   form = cdr(form);
@@ -50,6 +61,9 @@ void printstring (object *form, pfun_t pfun) {
   if (tstflag(PRINTREADABLY)) pfun('"');
 }
 
+/*
+  pfstring - prints a string from flash memory
+*/
 void pfstring (PGM_P s, pfun_t pfun) {
   int p = 0;
   while (1) {
@@ -162,24 +176,35 @@ void pfl (pfun_t pfun) {
   if (LastPrint != '\n') pfun('\n');
 }
 
+void plist (object *form, pfun_t pfun) {
+  pfun('(');
+  printobject(car(form), pfun);
+  form = cdr(form);
+  while (form != NULL && listp(form)) {
+    pfun(' ');
+    printobject(car(form), pfun);
+    form = cdr(form);
+  }
+  if (form != NULL) {
+    pfstring(PSTR(" . "), pfun);
+    printobject(form, pfun);
+  }
+  pfun(')');
+}
+
+void pstream (object *form, pfun_t pfun) {
+  pfun('<');
+  pfstring(streamname[(form->integer)>>8], pfun);
+  pfstring(PSTR("-stream "), pfun);
+  pint(form->integer & 0xFF, pfun);
+  pfun('>');
+}
+
 void printobject (object *form, pfun_t pfun) {
   if (form == NULL) pfstring(PSTR("nil"), pfun);
   else if (listp(form) && issymbol(car(form), CLOSURE)) pfstring(PSTR("<closure>"), pfun);
-  else if (listp(form)) {
-    pfun('(');
-    printobject(car(form), pfun);
-    form = cdr(form);
-    while (form != NULL && listp(form)) {
-      pfun(' ');
-      printobject(car(form), pfun);
-      form = cdr(form);
-    }
-    if (form != NULL) {
-      pfstring(PSTR(" . "), pfun);
-      printobject(form, pfun);
-    }
-    pfun(')');
-  } else if (integerp(form)) pint(form->integer, pfun);
+  else if (listp(form)) plist(form, pfun);
+  else if (integerp(form)) pint(form->integer, pfun);
 #ifdef FLOAT
   else if (floatp(form)) pfloat(form->single_float, pfun);
 #endif
@@ -192,18 +217,8 @@ void printobject (object *form, pfun_t pfun) {
 #ifdef CODE
   else if (form->type == CODE) pfstring(PSTR("code"), pfun);
 #endif
-  else if (streamp(form)) {
-    pfun('<');
-    if ((form->integer)>>8 == SPISTREAM) pfstring(PSTR("spi"), pfun);
-    else if ((form->integer)>>8 == I2CSTREAM) pfstring(PSTR("i2c"), pfun);
-    else if ((form->integer)>>8 == SDSTREAM) pfstring(PSTR("sd"), pfun);
-    // FIXME: This is missing several kinds of streams now.
-    else pfstring(PSTR("serial"), pfun);
-    pfstring(PSTR("-stream "), pfun);
-    pint(form->integer & 0xFF, pfun);
-    pfun('>');
-  } else
-    error2(0, PSTR("Error in print"));
+  else if (streamp(form)) pstream(form, pfun);
+  else error2(0, PSTR("Error in print"));
 }
 
 void prin1object (object *form, pfun_t pfun) {

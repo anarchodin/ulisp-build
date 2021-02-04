@@ -1,6 +1,7 @@
 // Assembler
 
 object *call (int entry, int nargs, object *args, object *env) {
+#if defined(CODESIZE)
   (void) env;
   int param[4];
   for (int i=0; i<nargs; i++) {
@@ -14,9 +15,13 @@ object *call (int entry, int nargs, object *args, object *env) {
   #endif
   int w = ((intfn_ptr_type)&MyCode[entry])(param[0], param[1], param[2], param[3]);
   return number(w);
+#else
+  return nil;
+#endif
 }
 
 void putcode (object *arg, int origin, int pc) {
+#if defined(CODESIZE)
   int code = checkinteger(DEFCODE, arg);
   MyCode[origin+pc] = code & 0xff;
   MyCode[origin+pc+1] = (code>>8) & 0xff;
@@ -24,6 +29,7 @@ void putcode (object *arg, int origin, int pc) {
   printhex4(pc, pserial);
   printhex4(code, pserial);
   #endif
+#endif
 }
 
 int assemble (int pass, int origin, object *entries, object *env, object *pcpair) {

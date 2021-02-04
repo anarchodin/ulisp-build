@@ -14,19 +14,21 @@
     ;; Write preamble
 
     (write-section :header)
+    (write-section :workspace)
 
     (write-constants platform) ; Per-platform constants.
     (write-section :macros) ; Common macro definitions.
+    (write-section :typedefs)
 
     ;; Write enum declarations - print-enums is defined in definitions.lisp
     (terpri)
     (write-string "// See uLisp internals documentation for details on how the ")
     (write-line "following enum is derived.")
-    (print-enums definitions)
+    (write-enums definitions)
+    (terpri)
+    (write-kw-enums platform)
     (terpri)
 
-    (write-section :typedefs)
-    (write-section :workspace)
     (write-section :globals)
     (write-section :error)
     (write-section :setup-workspace)
@@ -36,8 +38,8 @@
     (write-section :make-filename)
     (write-section :saveimage)
     (write-section :trace)
-    (write-section :helpers)
     (write-radix-encoding platform)
+    (write-section :helpers)
     (write-section :alist)
     (unless (eq platform :avr)
       (write-section :array))
@@ -64,6 +66,7 @@
     (format t "~%// Insert your own function definitions here~%")
     (format t "~%// Built-in procedure names - stored in PROGMEM~%~%")
     (write-table-strings definitions)
+    (write-kw-strings platform)
 
     ;; Write table
     (write-lookup-table definitions)

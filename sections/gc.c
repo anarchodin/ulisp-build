@@ -1,5 +1,8 @@
 // Garbage collection
 
+/*
+  markobject - recursively marks reachable objects, starting from obj
+*/
 void markobject (object *obj) {
   MARK:
   if (obj == NULL) return;
@@ -8,20 +11,20 @@ void markobject (object *obj) {
   object* arg = car(obj);
   unsigned int type = obj->type;
   mark(obj);
-  
+
   if (type >= PAIR || type == ZZERO) { // cons
     markobject(arg);
     obj = cdr(obj);
     goto MARK;
   }
 
-#ifdef ARRAY
+  #ifdef ARRAY
   if (type == ARRAY) {
     obj = cdr(obj);
     goto MARK;
   }
+  #endif
 
-#endif
   if (type == STRING) {
     obj = cdr(obj);
     while (obj != NULL) {
@@ -32,6 +35,10 @@ void markobject (object *obj) {
   }
 }
 
+/*
+  sweep - goes through the workspace freeing objects that have not been marked,
+  and unmarks marked objects
+*/
 void sweep () {
   Freelist = NULL;
   Freespace = 0;
@@ -41,6 +48,10 @@ void sweep () {
   }
 }
 
+/*
+  gc - perform garbage collection by calling markobject on each of the pointers to objects in use,
+  followed by sweep to free unused objects.
+*/
 void gc (object *form, object *env) {
   #if defined(printgcs)
   int start = Freespace;

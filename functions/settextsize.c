@@ -1,9 +1,9 @@
 #include "ulisp.h"
 
 object *fn_settextsize (object *args, object *env) {
-#if defined(gfxsupport)
+  #if defined(gfxsupport)
   (void) env;
   tft.setTextSize(checkinteger(SETTEXTSIZE, first(args)));
+  #endif
   return nil;
-#endif
 }

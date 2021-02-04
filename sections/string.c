@@ -31,6 +31,10 @@ void buildstring (char ch, int *chars, object **head) {
   }
 }
 
+/*
+  readstring - reads characters from an input stream up to delimiter delim
+  and returns a Lisp string
+*/
 object *readstring (char delim, gfun_t gfun) {
   object *obj = myalloc();
   obj->type = STRING;
@@ -47,6 +51,9 @@ object *readstring (char delim, gfun_t gfun) {
   return obj;
 }
 
+/*
+  stringlength - returns length of a Lisp string
+*/
 int stringlength (object *form) {
   int length = 0;
   form = cdr(form);
@@ -60,6 +67,9 @@ int stringlength (object *form) {
   return length;
 }
 
+/*
+  nthchar - returns the nth character from a Lisp string
+*/
 char nthchar (object *string, int n) {
   object *arg = cdr(string);
   int top;
@@ -74,7 +84,7 @@ char nthchar (object *string, int n) {
 }
 
 int gstr () {
-  if (LastChar) { 
+  if (LastChar) {
     char temp = LastChar;
     LastChar = 0;
     return temp;

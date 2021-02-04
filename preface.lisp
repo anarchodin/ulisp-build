@@ -5,6 +5,7 @@
 ;; FIXME: This belongs elsewhere.
 (defvar *maximum-trace-count* 3 "The number of functions that can be traced at one time.")
 
+;; NOTE: Done as CPP macros rather than an enum in preparation for further changes.
 (defun print-types (typelist &optional (stream *standard-output*))
   "Output type definitions for the given types."
   (format stream "~&~%// Types~%")
@@ -16,8 +17,12 @@
 (defun print-streams (streamlist &optional (stream *standard-output*) (margin 90))
   "Output a streams enum for a given list of streams."
   (let ((*standard-output* (or stream *standard-output*))
-        (*print-right-margin* margin))
-    (format stream "enum stream { ~<~@{~a~#[ ~:;, ~]~:_~:}~:>};~%" streamlist))) ; Eek?
+        (*print-right-margin* margin)
+        (stream-names (mapcar #'(lambda (x) (string-downcase (symbol-name x))) streamlist)))
+    (format stream "enum stream { ~<~@{~aSTREAM~#[ ~:;, ~]~:_~:}~:>};~%~%" streamlist) ; Eek?
+    (format stream "// Stream names used by printobject~%")
+    (format stream "~{const char ~astream[] PROGMEM = \"~:*~a\";~%~}" stream-names)
+    (format stream "const char *streamname[] PROGMEM = {~{~astream~#[~:;, ~]~}};~%" stream-names)))
 
 (defun write-constants (platform &optional (stream *standard-output*))
   "Write out the constants table used by a platform."

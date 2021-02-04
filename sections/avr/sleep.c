@@ -1,6 +1,6 @@
 // Sleep
 
-#if !defined(__AVR_ATmega4809__) && !defined(ARDUINO_AVR_ATmega4809)
+#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DA48)
   // Interrupt vector for sleep watchdog
   ISR(WDT_vect) {
   WDTCSR |= 1<<WDIE;
@@ -12,16 +12,16 @@ void initsleep () {
 }
 
 void sleep (int secs) {
-#if !defined(__AVR_ATmega4809__) && !defined(ARDUINO_AVR_ATmega4809)
+#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DA48)
   // Set up Watchdog timer for 1 Hz interrupt
   WDTCSR = 1<<WDCE | 1<<WDE;
   WDTCSR = 1<<WDIE | 6<<WDP0;     // 1 sec interrupt
   delay(100);  // Give serial time to settle
   // Disable ADC and timer 0
   ADCSRA = ADCSRA & ~(1<<ADEN);
-#if defined(__AVR_ATmega328P__)
+#if defined(CPU_ATmega328P)
   PRR = PRR | 1<<PRTIM0;
-#elif defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1284P__)
+#elif defined(CPU_ATmega2560) || defined(CPU_ATmega1284P)
   PRR0 = PRR0 | 1<<PRTIM0;
 #endif
   while (secs > 0) {
@@ -33,9 +33,9 @@ void sleep (int secs) {
   WDTCSR = 0;
   // Enable ADC and timer 0
   ADCSRA = ADCSRA | 1<<ADEN;
-#if defined(__AVR_ATmega328P__)
+#if defined(CPU_ATmega328P)
   PRR = PRR & ~(1<<PRTIM0);
-#elif defined(__AVR_ATmega2560__) || defined(__AVR_ATmega1284P__)
+#elif defined(CPU_ATmega2560) || defined(CPU_ATmega1284P)
   PRR0 = PRR0 & ~(1<<PRTIM0);
 #endif
 #else

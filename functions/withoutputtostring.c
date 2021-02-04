@@ -1,6 +1,7 @@
 #include "ulisp.h"
 
 object *sp_withoutputtostring (object *args, object *env) {
+  if (args == NULL) error2(WITHOUTPUTTOSTRING, noargument);
   object *params = first(args);
   if (params == NULL) error2(WITHOUTPUTTOSTRING, nostream);
   object *var = first(params);

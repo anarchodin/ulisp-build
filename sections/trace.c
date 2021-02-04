@@ -1,5 +1,8 @@
 // Tracing
 
+/*
+  tracing - returns a number between 1 and TRACEMAX if name is being traced, or 0 otherwise
+*/
 bool tracing (symbol_t name) {
   int i = 0;
   while (i < TRACEMAX) {
@@ -9,6 +12,9 @@ bool tracing (symbol_t name) {
   return 0;
 }
 
+/*
+  trace - enables tracing of symbol name and adds it to the array TraceFn[].
+*/
 void trace (symbol_t name) {
   if (tracing(name)) error(TRACE, PSTR("already being traced"), symbol(name));
   int i = 0;
@@ -19,6 +25,9 @@ void trace (symbol_t name) {
   error2(TRACE, PSTR("already tracing 3 functions"));
 }
 
+/*
+  untrace - disables tracing of symbol name and removes it from the array TraceFn[].
+*/
 void untrace (symbol_t name) {
   int i = 0;
   while (i < TRACEMAX) {

@@ -31,6 +31,17 @@
 #define clrflag(x)         (Flags = Flags & ~(1<<(x)))
 #define tstflag(x)         (Flags & 1<<(x))
 
+#define issp(x)            (x == ' ' || x == '\n' || x == '\r' || x == '\t')
+
+#if defined(__AVR)
+#define SDCARD_SS_PIN 10
+#endif
+
+#if defined(CPU_ATmega4809)
+#define PROGMEM
+#define PSTR(s) (s)
+#endif
+
 #ifdef CODE
 // Code marker stores start and end of code block
 #define startblock(x)      ((x->integer) & 0xFFFF)

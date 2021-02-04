@@ -2,7 +2,7 @@
 
 object *fn_break (object *args, object *env) {
   (void) args;
-  pfstring(PSTR("\rBreak!\r"), pserial);
+  pfstring(PSTR("\nBreak!\n"), pserial);
   BreakLevel++;
   repl(env);
   BreakLevel--;

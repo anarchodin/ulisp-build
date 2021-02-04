@@ -1,17 +1,5 @@
 // Helper functions
 
-inline object *carx (object *arg) {
-  if (!listp(arg)) error(0, PSTR("can't take car"), arg);
-  if (arg == nil) return nil;
-  return car(arg);
-}
-
-inline object *cdrx (object *arg) {
-  if (!listp(arg)) error(0, PSTR("can't take cdr"), arg);
-  if (arg == nil) return nil;
-  return cdr(arg);
-}
-
 bool consp (object *x) {
   if (x == NULL) return false;
   unsigned int type = x->type;
@@ -48,21 +36,30 @@ int digitvalue (char d) {
 }
 
 int checkinteger (symbol_t name, object *obj) {
-  if (!integerp(obj)) error(name, notanumber, obj);
+  if (!integerp(obj)) error(name, notaninteger, obj);
   return obj->integer;
 }
+
+#ifndef __AVR__
+int checkbitvalue (symbol_t name, object *obj) {
+  if (!integerp(obj)) error(name, notaninteger, obj);
+  int n = obj->integer;
+  if (n & ~1) error(name, PSTR("argument is not a bit value"), obj);
+  return n;
+}
+#endif /* __AVR__ */
 
 #ifdef FLOAT
 float checkintfloat (symbol_t name, object *obj){
   if (integerp(obj)) return obj->integer;
-  if (floatp(obj)) return obj->single_float;
-  error(name, notanumber, obj);
+  if (!floatp(obj)) error(name, notanumber, obj);
+  return obj->single_float;
 }
-
 #endif
+
 int checkchar (symbol_t name, object *obj) {
   if (!characterp(obj)) error(name, PSTR("argument is not a character"), obj);
-  return obj->integer;
+  return obj->chars;
 }
 
 int isstream (object *obj){
@@ -72,6 +69,20 @@ int isstream (object *obj){
 
 int issymbol (object *obj, symbol_t n) {
   return symbolp(obj) && obj->name == n;
+}
+
+int keywordp (object *obj) {
+  if (!symbolp(obj)) return false;
+  symbol_t name = obj->name;
+  return (name > KEYWORDS);
+}
+
+int checkkeyword (symbol_t name, object *obj) {
+  if (!keywordp(obj)) error(name, PSTR("argument is not a keyword"), obj);
+  symbol_t kname = obj->name;
+  uint8_t context = getminmax(kname);
+  if (context != 0 && context != name) error(name, invalidkey, obj);
+  return ((int)lookupfn(kname));
 }
 
 void checkargs (symbol_t name, object *args) {
@@ -86,9 +97,9 @@ int eq (object *arg1, object *arg2) {
   if (arg1->cdr != arg2->cdr) return false;  // Different values
   if (symbolp(arg1) && symbolp(arg2)) return true;  // Same symbol
   if (integerp(arg1) && integerp(arg2)) return true;  // Same integer
-#ifdef FLOAT
+  #ifdef FLOAT
   if (floatp(arg1) && floatp(arg2)) return true; // Same float
-#endif
+  #endif
   if (characterp(arg1) && characterp(arg2)) return true;  // Same character
   return false;
 }

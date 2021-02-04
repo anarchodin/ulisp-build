@@ -1,5 +1,5 @@
-/* uLisp AVR Version 3.2 - www.ulisp.com
-   David Johnson-Davies - www.technoblogy.com - 29th April 2020
+/* uLisp AVR Version 3.4a - www.ulisp.com
+   David Johnson-Davies - www.technoblogy.com - 5th January 2021
 
    Licensed under the MIT license: https://opensource.org/licenses/MIT
 */
@@ -12,7 +12,6 @@ const char LispLibrary[] PROGMEM = "";
 #define checkoverflow
 // #define resetautorun
 #define printfreespace
-#define serialmonitor
 // #define printgcs
 // #define sdcardsupport
 // #define lisplibrary
