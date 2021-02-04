@@ -1,3 +1,8 @@
+# Immediate priorities
+
+ 1. Bring the AVR version up to date.
+ 2. Port immediate value branch to this system.
+
 # Unsorted list of tasks that should be done
 
  -  __Handle the inclusion of user-visible functions better.__
