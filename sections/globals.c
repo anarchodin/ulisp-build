@@ -1,6 +1,10 @@
 // Global variables
 
+#if defined(MEMBANK)
 object Workspace[WORKSPACESIZE] WORDALIGNED MEMBANK;
+#else
+object Workspace[WORKSPACESIZE] WORDALIGNED;
+#endif
 char SymbolTable[SYMBOLTABLESIZE];
 #if defined(CODESIZE)
 RAMFUNC uint8_t MyCode[CODESIZE] WORDALIGNED;

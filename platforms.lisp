@@ -10,7 +10,7 @@
 (defparameter *platforms*
   '((:avr
      (:types zzero symbol number stream character string pair)
-     (:streams serial i2c spi sd)
+     (:streams serial i2c spi sd string)
      (:keywords
       ("CPU_ATmega328P"
        (DIGITALWRITE HIGH LOW)
@@ -31,7 +31,7 @@
        (ANALOGREFERENCE DEFAULT VDD INTERNAL1V024 INTERNAL2V048 INTERNAL4V096
                         INTERNAL2V5 EXTERNAL)
        (ANALOGREAD ADC_DAC0 ADC_TEMPERATURE)))
-     (:features))
+     (:features :dacreference))
     (:arm
      (:types zzero symbol code number stream character float array string pair)
      (:streams serial i2c spi sd string gfx)
@@ -69,7 +69,7 @@
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP OUTPUT)
        (ANALOGREFERENCE DEFAULT EXTERNAL)))
-     (:features :float :gfx :code :array :stringstream))
+     (:features :float :gfx :code :array :stringstream :write-resolution))
     (:esp
      (:types zzero symbol number stream character float array string pair)
      (:streams serial i2c spi sd wifi string gfx)
@@ -88,7 +88,7 @@
       (nil
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP INPUT_PULLDOWN OUTPUT)))
-     (:features :float :gfx :code :array :stringstream)))
+     (:features :float :gfx :code :array :stringstream :write-resolution)))
   "An alist of alists, representing various characteristics of the platforms uLisp runs on.")
 
 (defun get-streams (platform)

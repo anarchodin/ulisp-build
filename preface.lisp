@@ -22,7 +22,7 @@
     (format stream "enum stream { ~<~@{~aSTREAM~#[ ~:;, ~]~:_~:}~:>};~%~%" streamlist) ; Eek?
     (format stream "// Stream names used by printobject~%")
     (format stream "~{const char ~astream[] PROGMEM = \"~:*~a\";~%~}" stream-names)
-    (format stream "const char *streamname[] PROGMEM = {~{~astream~#[~:;, ~]~}};~%" stream-names)))
+    (format stream "const char * const streamname[] PROGMEM = {~{~astream~#[~:;, ~]~}};~%" stream-names)))
 
 (defun write-constants (platform &optional (stream *standard-output*))
   "Write out the constants table used by a platform."

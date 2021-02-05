@@ -4,8 +4,14 @@
   place - returns a pointer to an object referenced in the second argument of an
   in-place operation such as setf. bit is used to indicate the bit position in a bit array
 */
+#ifndef ARRAY
+object **place (symbol_t name, object *args, object *env) {
+#else
 object **place (symbol_t name, object *args, object *env, int *bit) {
+#endif
+  #ifdef ARRAY
   *bit = -1;
+  #endif
   if (atom(args)) return &cdr(findvalue(args, env));
   object* function = first(args);
   if (symbolp(function)) {
