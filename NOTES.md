@@ -95,8 +95,8 @@ lookup table and group the symbols by features.
 
 In order to make this change, there are a handful of steps:
 
-- [ ] Ensure existing argument checking logic continues to work.
-- [ ] Alter keywords so they don’t use the `minmax` value.
+- [x] Ensure existing argument checking logic continues to work.
+- [x] Alter keywords so they don’t use the `minmax` value.
 - [ ] Move the interpreter’s handling logic from using sentinel values to the
       new system.
 

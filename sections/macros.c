@@ -47,3 +47,9 @@
 #define startblock(x)      ((x->integer) & 0xFFFF)
 #define endblock(x)        ((x->integer) >> 16 & 0xFFFF)
 #endif
+
+// Calling conventions.
+#define CC_SYMBOL  0x80
+#define CC_SPECIAL 0x81
+#define CC_TAIL    0x82
+#define CC_KEYWORD 0x83

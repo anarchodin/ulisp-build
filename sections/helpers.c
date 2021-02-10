@@ -74,15 +74,17 @@ int issymbol (object *obj, symbol_t n) {
 int keywordp (object *obj) {
   if (!symbolp(obj)) return false;
   symbol_t name = obj->name;
-  return (name > KEYWORDS);
+  if (name > ENDKEYWORDS) return false; // No keywords except built-ins.
+  return (getminmax(name) == CC_KEYWORD);
 }
 
 int checkkeyword (symbol_t name, object *obj) {
   if (!keywordp(obj)) error(name, PSTR("argument is not a keyword"), obj);
   symbol_t kname = obj->name;
-  uint8_t context = getminmax(kname);
+  uintptr_t data = (uintptr_t)lookupfn(kname);
+  uint8_t context = data & 0xFF;
   if (context != 0 && context != name) error(name, invalidkey, obj);
-  return ((int)lookupfn(kname));
+  return (data>>8);
 }
 
 void checkargs (symbol_t name, uint8_t callc, object *args) {

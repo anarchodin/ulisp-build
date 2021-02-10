@@ -167,7 +167,7 @@
            (write-kw-entries (keywords)
              (let ((i -1))
                (dolist (keyword keywords)
-                 (format stream "  { keyword~a, (fn_ptr_type)~a, ~a }, ~%" (incf i) (cdr keyword) (car keyword))))))
+                 (format stream "  { keyword~a, (fn_ptr_type)((~a << 8) | ~a), CC_KEYWORD }, ~%" (incf i) (cdr keyword) (car keyword))))))
     (format stream "  { emptystring, NULL, 0x00 },~%")
     (let ((entries (mapcar #'simplify (get-keywords-full platform))))
       (case (length entries)
