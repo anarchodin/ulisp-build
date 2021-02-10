@@ -17,6 +17,7 @@
   "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
   (let ((*standard-output* (or stream *standard-output*))
         (*print-right-margin* margin)
+        (*print-pretty* t) ;; Better make sure.
         (symbols (filter-symbols (apply #'append (mapcar #'cadr defs)))))
     (pprint-logical-block (nil nil)
       (write-string "enum function {")
