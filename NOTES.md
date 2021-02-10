@@ -97,7 +97,7 @@ In order to make this change, there are a handful of steps:
 
 - [x] Ensure existing argument checking logic continues to work.
 - [x] Alter keywords so they don’t use the `minmax` value.
-- [ ] Move the interpreter’s handling logic from using sentinel values to the
+- [x] Move the interpreter’s handling logic from using sentinel values to the
       new system.
 
 On both AVR and ARM, all current keywords alias values below 256. We

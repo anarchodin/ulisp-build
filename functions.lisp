@@ -18,8 +18,7 @@
       (LETSTAR "let*" 8 0)
       (CLOSURE NIL 8 0)))
     ("Special forms"
-     ((SPECIAL_FORMS "" 0 0)
-      (QUOTE NIL 8 1)
+     ((QUOTE NIL 8 1)
       (DEFUN NIL 8 1)
       (DEFVAR NIL 8 1)
       (SETQ NIL 8 1)
@@ -52,8 +51,7 @@
      ((DEFCODE NIL 8 1 :code))
      "sp")
     ("Tail-recursive forms"
-     ((TAIL_FORMS "" 0 0)
-      (PROGN NIL 8 2)
+     ((PROGN NIL 8 2)
       (IF NIL 8 2)
       (COND NIL 8 2)
       (WHEN NIL 8 2)
@@ -63,8 +61,7 @@
       (OR NIL 8 2))
      "tf")
     ("Core functions"
-     ((FUNCTIONS "" 0 0)
-      (NOT NIL 1 1)
+     ((NOT NIL 1 1)
       (NULLFN "null" 1 1 (not))
       (CONS NIL 2 2)
       (ATOM NIL 1 1)
