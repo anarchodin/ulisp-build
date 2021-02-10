@@ -8,7 +8,7 @@
 */
 object *sp_incf (object *args, object *env) {
   int bit;
-  checkargs(INCF, args); 
+  checkargs(INCF, 0x12, args);
   object **loc = place(INCF, first(args), env, &bit);
   args = cdr(args);
   

@@ -152,8 +152,9 @@ object *eval (object *form, object *env) {
 
   if (symbolp(function)) {
     symbol_t name = function->name;
-    if (name >= ENDFUNCTIONS) error(0, PSTR("not valid here"), fname);
-    checkminmax(name, nargs);
+    if (name >= ENDFUNCTIONS) error(0, notvalid, fname);
+    // HACK: Use fixnum encoding so we can use the same function here as elsewhere.
+    checkargs(name, getminmax(name), (object *)((nargs<<3)|2));
     object *result = ((fn_ptr_type)lookupfn(name))(args, env);
     pop(GCStack);
     return result;

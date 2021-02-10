@@ -1,7 +1,7 @@
 #include "ulisp.h"
 
 object *sp_defvar (object *args, object *env) {
-  checkargs(DEFVAR, args);
+  checkargs(DEFVAR, 0x12, args);
   object *var = first(args);
   if (!symbolp(var)) error(DEFVAR, notasymbol, var);
   object *val = NULL;

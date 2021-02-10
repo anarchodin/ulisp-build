@@ -3,7 +3,7 @@
 object *sp_defcode (object *args, object *env) {
 #if defined(CODESIZE)
   setflag(NOESC);
-  checkargs(DEFCODE, args);
+  checkargs(DEFCODE, 0x0F, args); // REVIEW: Is this actually needed?
   object *var = first(args);
   object *params = second(args);
   if (!symbolp(var)) error(DEFCODE, PSTR("not a symbol"), var);

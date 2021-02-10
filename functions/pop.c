@@ -4,7 +4,7 @@ object *sp_pop (object *args, object *env) {
   #ifdef ARRAY
   int bit;
   #endif
-  checkargs(POP, args); 
+  checkargs(POP, 0x11, args);
   #ifdef ARRAY
   object **loc = place(POP, first(args), env, &bit);
   #else

@@ -56,3 +56,4 @@ const char invalidkey[] PROGMEM = "invalid keyword";
 const char invalidpin[] PROGMEM = "invalid pin";
 const char resultproper[] PROGMEM = "result is not a proper list";
 const char oddargs[] PROGMEM = "odd number of arguments";
+const char notvalid[] PROGMEM = "not valid here";

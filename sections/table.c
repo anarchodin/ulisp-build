@@ -47,12 +47,6 @@ uint8_t getminmax (symbol_t name) {
 #endif  
 }
 
-void checkminmax (symbol_t name, int nargs) {
-  uint8_t minmax = getminmax(name);
-  if (nargs<(minmax >> 4)) error2(name, toofewargs);
-  if ((minmax & 0x0f) != 0x0f && nargs>(minmax & 0x0f)) error2(name, toomanyargs);
-}
-
 char *lookupbuiltin (symbol_t name) {
   char *buffer = SymbolTop;
 #ifdef NEEDS_PROGMEM

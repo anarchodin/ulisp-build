@@ -92,7 +92,7 @@ object *apply (symbol_t name, object *function, object *args, object *env) {
   if (symbolp(function)) {
     symbol_t fname = function->name;
     if ((fname > FUNCTIONS) && (fname < KEYWORDS)) {
-      checkargs(fname, args);
+      checkargs(fname, getminmax(fname), args);
       return ((fn_ptr_type)lookupfn(fname))(args, env);
     } else function = eval(function, env);
   }

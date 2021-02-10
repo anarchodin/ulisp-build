@@ -85,10 +85,13 @@ int checkkeyword (symbol_t name, object *obj) {
   return ((int)lookupfn(kname));
 }
 
-void checkargs (symbol_t name, object *args) {
-  int nargs = listlength(name, args);
-  if (name >= ENDFUNCTIONS) error(0, PSTR("not valid here"), symbol(name));
-  checkminmax(name, nargs);
+void checkargs (symbol_t name, uint8_t callc, object *args) {
+  // HACK: Uses fixnum encoding to accept both lists and a count.
+  // FIXME: This can be made much clearer with full fixnum support.
+  if (callc & 0x80) error(0, notvalid, symbol(name));
+  int nargs = ((uintptr_t)args & 6) == 2 ? (uintptr_t)args>>3 : listlength(name, args);
+  if (nargs<(callc >> 4)) error2(name, toofewargs);
+  if ((callc & 0x0f) != 0x0f && nargs>(callc & 0x0f)) error2(name, toomanyargs);
 }
 
 int eq (object *arg1, object *arg2) {

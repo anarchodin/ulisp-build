@@ -8,10 +8,10 @@
 */
 object *sp_decf (object *args, object *env) {
   int bit;
-  checkargs(DECF, args);
+  checkargs(DECF, 0x12, args);
   object **loc = place(DECF, first(args), env, &bit);
   args = cdr(args);
-  
+
   object *x = *loc;
   object *dec = (args != NULL) ? eval(first(args), env) : NULL;
 
@@ -24,7 +24,7 @@ object *sp_decf (object *args, object *env) {
     *loc = number((((*loc)->integer) & ~(1<<bit)) | newvalue<<bit);
     return number(newvalue);
   }
-  
+
   if (floatp(x) || floatp(dec)) {
     float decrement;
     float value = checkintfloat(DECF, x);

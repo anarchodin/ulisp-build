@@ -2,7 +2,7 @@
 
 object *sp_defun (object *args, object *env) {
   (void) env;
-  checkargs(DEFUN, args);
+  checkargs(DEFUN, 0x1F, args);
   object *var = first(args);
   if (!symbolp(var)) error(DEFUN, notasymbol, var);
   object *val = cons(symbol(LAMBDA), cdr(args));

@@ -5,7 +5,7 @@
   Calls place() to get a pointer to the numeric value.
 */
 object *incfdecf (symbol_t name, object *args, int increment, object *env) {
-  checkargs(name, args); 
+  checkargs(name, 0x12, args);
   object **loc = place(name, first(args), env);
   int result = checkinteger(name, *loc);
   args = cdr(args);
