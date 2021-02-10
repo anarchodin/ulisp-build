@@ -91,9 +91,12 @@ object *closure (int tc, symbol_t name, object *state, object *function, object 
 object *apply (symbol_t name, object *function, object *args, object *env) {
   if (symbolp(function)) {
     symbol_t fname = function->name;
-    if ((fname > FUNCTIONS) && (fname < KEYWORDS)) {
-      checkargs(fname, getminmax(fname), args);
-      return ((fn_ptr_type)lookupfn(fname))(args, env);
+    if (fname < ENDKEYWORDS) {
+      uint8_t callc = getminmax(fname);
+      if (callc < 0x80) { // High bit not set, so normal function.
+        checkargs(fname, callc, args);
+        return ((fn_ptr_type)lookupfn(fname))(args, env);
+      } else function = eval(function, env); // TODO: Eliminate this repetition.
     } else function = eval(function, env);
   }
   if (consp(function) && issymbol(car(function), LAMBDA)) {

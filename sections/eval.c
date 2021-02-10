@@ -63,7 +63,7 @@ object *eval (object *form, object *env) {
     if (pair != NULL) return cdr(pair);
     pair = value(name, GlobalEnv);
     if (pair != NULL) return cdr(pair);
-    else if (name <= ENDKEYWORDS) return form;
+    else if (name < ENDKEYWORDS) return form;
     error(0, PSTR("undefined"), form);
   }
 
@@ -117,17 +117,22 @@ object *eval (object *form, object *env) {
       return cons(symbol(CLOSURE), cons(envcopy,args));
     }
 
-    if ((name > SPECIAL_FORMS) && (name < TAIL_FORMS)) {
-      return ((fn_ptr_type)lookupfn(name))(args, env);
-    }
+    if (name < ENDKEYWORDS) {
+      uint8_t callc = getminmax(name);
 
-    if ((name > TAIL_FORMS) && (name < FUNCTIONS)) {
-      form = ((fn_ptr_type)lookupfn(name))(args, env);
-      TC = 1;
-      goto EVAL;
+      switch (callc) {
+      case CC_SYMBOL:
+      case CC_KEYWORD:
+        error2(name, PSTR("can't be used as a function"));
+        break;
+      case CC_SPECIAL:
+        return ((fn_ptr_type)lookupfn(name))(args, env);
+      case CC_TAIL:
+        form = ((fn_ptr_type)lookupfn(name))(args, env);
+        TC = 1;
+        goto EVAL;
+      }
     }
-
-    if ((name < SPECIAL_FORMS) || (name > ENDFUNCTIONS)) error2(name, PSTR("can't be used as a function"));
   }
 
   // Evaluate the parameters - result in head
