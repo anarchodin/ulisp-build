@@ -39,11 +39,11 @@ intptr_t lookupfn (symbol_t name) {
 #endif
 }
 
-uint8_t getminmax (symbol_t name) {
+uint8_t getcallc (symbol_t name) {
 #ifdef NEEDS_PROGMEM
-  return pgm_read_byte(&lookup_table[name].minmax);
+  return pgm_read_byte(&lookup_table[name].callc);
 #else
-  return lookup_table[name].minmax;
+  return lookup_table[name].callc;
 #endif  
 }
 

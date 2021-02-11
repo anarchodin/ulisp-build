@@ -75,7 +75,7 @@ int keywordp (object *obj) {
   if (!symbolp(obj)) return false;
   symbol_t name = obj->name;
   if (name > ENDKEYWORDS) return false; // No keywords except built-ins.
-  return (getminmax(name) == CC_KEYWORD);
+  return (getcallc(name) == CC_KEYWORD);
 }
 
 int checkkeyword (symbol_t name, object *obj) {

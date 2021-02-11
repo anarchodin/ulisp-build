@@ -92,7 +92,7 @@ object *apply (symbol_t name, object *function, object *args, object *env) {
   if (symbolp(function)) {
     symbol_t fname = function->name;
     if (fname < ENDKEYWORDS) {
-      uint8_t callc = getminmax(fname);
+      uint8_t callc = getcallc(fname);
       if (callc < 0x80) { // High bit not set, so normal function.
         checkargs(fname, callc, args);
         return ((fn_ptr_type)lookupfn(fname))(args, env);

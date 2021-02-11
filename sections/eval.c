@@ -118,7 +118,7 @@ object *eval (object *form, object *env) {
     }
 
     if (name < ENDKEYWORDS) {
-      uint8_t callc = getminmax(name);
+      uint8_t callc = getcallc(name);
 
       switch (callc) {
       case CC_SYMBOL:
@@ -159,7 +159,7 @@ object *eval (object *form, object *env) {
     symbol_t name = function->name;
     if (name >= ENDFUNCTIONS) error(0, notvalid, fname);
     // HACK: Use fixnum encoding so we can use the same function here as elsewhere.
-    checkargs(name, getminmax(name), (object *)((nargs<<3)|2));
+    checkargs(name, getcallc(name), (object *)((nargs<<3)|2));
     object *result = ((fn_ptr_type)lookupfn(name))(args, env);
     pop(GCStack);
     return result;

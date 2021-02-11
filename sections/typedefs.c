@@ -31,7 +31,7 @@ typedef int (*intfn_ptr_type)(int w, int x, int y, int z);
 typedef struct {
   const char *string;
   fn_ptr_type fptr;
-  uint8_t minmax;
+  uint8_t callc;
 } tbl_entry_t;
 
 typedef int (*gfun_t)();
