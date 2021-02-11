@@ -1,6 +1,6 @@
 // Platform specific settings
 
-#define WORDALIGNED __attribute__((aligned (2)))
+#define WORDALIGNED __attribute__((aligned (4)))
 #define BUFFERSIZE 21                     /* longest builtin name + 1 */
 
 #if defined(__AVR_ATmega328P__)
