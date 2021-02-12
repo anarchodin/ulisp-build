@@ -6,11 +6,7 @@ bool consp (object *x) {
   return type >= PAIR || type == ZZERO;
 }
 
-bool atom (object *x) {
-  if (x == NULL) return true;
-  unsigned int type = x->type;
-  return type < PAIR && type != ZZERO;
-}
+#define atom(x) (!consp(x))
 
 bool listp (object *x) {
   if (x == NULL) return true;
@@ -18,11 +14,7 @@ bool listp (object *x) {
   return type >= PAIR || type == ZZERO;
 }
 
-bool improperp (object *x) {
-  if (x == NULL) return false;
-  unsigned int type = x->type;
-  return type < PAIR && type != ZZERO;
-}
+#define improperp(x) (!listp(x))
 
 object *quote (object *arg) {
   return cons(symbol(QUOTE), cons(arg,NULL));

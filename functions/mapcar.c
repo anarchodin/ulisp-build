@@ -6,11 +6,11 @@ void mapcarfun (object *result, object **tail) {
 }
 
 void mapcanfun (object *result, object **tail) {
+  if (cdr(*tail) != NULL) error(MAPCAN, notproper, *tail);
   while (consp(result)) {
     cdr(*tail) = result; *tail = result;
     result = cdr(result);
   }
-  // if (result != NULL) error(MAPCAN, resultproper, result);
 }
 
 object *mapcarcan (symbol_t name, object *args, object *env, mapfun_t fun) {
