@@ -2,10 +2,20 @@
 
 (in-package :ulisp-build)
 
+;; TODO: This is a temporary solution, while things are transitioned.
+(defparameter *sources*
+  '("src/specials.c" "src/accessors.c" "src/control-flow.c" "src/core.c" "src/list.c")
+  "Source files to be included in build.")
+
+;; FIXME: This gets done at load-time. Should be done for each pass.
+(defparameter *build-symbols* (mapcan #'get-symbol-entries *sources*)
+  "Symbols from the source files to be included.")
+
 (defun generate (output-file &optional (platform :avr))
   "Generate uLisp .ino files using the facilities defined by the system."
  (let ((*ulisp-features* (get-features platform))
        (*platform* platform)
+       (symbols (append *core-symbols* *build-symbols*))
        (definitions *definitions*)) ; (case platform (:zero *definitions-zero*) (t *definitions*))
     ;;
    (with-open-file (*standard-output* output-file :direction :output
@@ -24,7 +34,7 @@
     (terpri)
     (write-string "// See uLisp internals documentation for details on how the ")
     (write-line "following enum is derived.")
-    (write-enums definitions)
+    (write-enums symbols definitions)
     (terpri)
     (write-kw-enums platform)
     (terpri)
@@ -60,16 +70,25 @@
     (when (member :interrupts *ulisp-features*)
       (write-section :interrupts))
     ;; Write function definitions
+    (dolist (source-file *sources*)
+      (let ((code (uiop:read-file-string
+                   (asdf:system-relative-pathname :ulisp-build source-file))))
+        (princ code)))
     (write-definitions definitions)
 
     ;; Write PROGMEM strings
     (format t "~%// Insert your own function definitions here~%")
     (format t "~%// Built-in procedure names - stored in PROGMEM~%~%")
+
+    (loop for i from 0
+          for symbol in symbols do
+            (format t "const char symbol~a[] PROGMEM = \"~a\";~%" i
+                    (get-symbol-name symbol)))
     (write-table-strings definitions)
     (write-kw-strings platform)
 
     ;; Write table
-    (write-lookup-table definitions)
+    (write-lookup-table symbols definitions)
 
     ;; Write rest -- postscript.lisp
     (write-section :table)

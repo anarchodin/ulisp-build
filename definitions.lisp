@@ -4,7 +4,7 @@
 
 (defun filter-symbols (definitions)
   "Remove symbols that have features not currently in *ulisp-features*."
-  (remove-duplicates
+  (remove 'nil
    (mapcar #'(lambda (entry) (let ((enum (first entry))
                                    (feature (fifth entry)))
                                (if (keywordp feature)
@@ -13,21 +13,22 @@
                                    enum)))
            definitions) :from-end t))
 
-(defun write-enums (defs &optional (stream *standard-output*) (margin 90))
+(defun write-enums (symbols defs &optional (stream *standard-output*) (margin 90))
   "Take a set of definitions and print the enums. Defaults to standard out and 90 columns."
   (let ((*standard-output* (or stream *standard-output*))
         (*print-right-margin* margin)
         (*print-pretty* t) ;; Better make sure.
-        (symbols (filter-symbols (apply #'append (mapcar #'cadr defs)))))
+        (enums (append (mapcar #'get-symbol-enum symbols)
+                       (filter-symbols (apply #'append (mapcar #'cadr defs))))))
     (pprint-logical-block (nil nil)
       (write-string "enum function {")
       (terpri)
       (write-string "  ")
       (pprint-indent :current 0)
-      (pprint-logical-block (nil symbols :suffix "ENDFUNCTIONS")
+      (pprint-logical-block (nil enums :suffix "ENDFUNCTIONS")
         (loop
            (pprint-exit-if-list-exhausted)
-           (write (pprint-pop))
+           (princ (pprint-pop))
            (write-string ", ")
            (pprint-newline :fill)))
       (terpri)
@@ -88,12 +89,20 @@
                 (format stream "const char string~a[] PROGMEM = \"~a\";~%" i (or string lower))
                 (incf i)))))))))
 
-(defun write-lookup-table (definitions &optional (stream *standard-output*))
+(defun write-lookup-table (symbols definitions &optional (stream *standard-output*))
   "Write the lookup table itself."
+  (terpri)
+  (write-line "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited" stream)
+  (write-line "const tbl_entry_t lookup_table[] PROGMEM = {" stream)
+  ;; There are three sections to this now.
+  ;; First, the "new-style" symbol definitions.
+  (loop for i from 0
+        for symbol in symbols do
+          (format stream "  { symbol~a, ~a, ~a },~%" i
+                  (get-symbol-label symbol)
+                  (get-symbol-callc symbol)))
+  ;; Second, the "old-style" definitions.
   (let ((i 0))
-    (terpri)
-    (write-line "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited" stream)
-    (write-line "const tbl_entry_t lookup_table[] PROGMEM = {" stream)
     (dolist (section definitions)
       (destructuring-bind (comment defs &optional (prefix "fn")) section
         (declare (ignore comment))
@@ -107,9 +116,10 @@
                              ((consp feature) (string-downcase (car feature)))
                              (t (string-downcase enum)))))
                 (format stream "  { string~a, ~:[NULL~2*~;~a_~a~], 0x~2,'0x },~%" i definedp prefix lower (+ (ash min 4) (min max 15)))
-                (incf i)))))))
-    (write-kw-table *platform* stream)
-    (format stream "};~%")))
+                (incf i))))))))
+  ;; Finally, write out the keywords.
+  (write-kw-table *platform* stream)
+  (format stream "};~%"))
 
 ;;; Keyword things.
 ; TODO: These are kinda similar. Macro?
