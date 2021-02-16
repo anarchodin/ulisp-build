@@ -48,6 +48,26 @@ object *tf_unless (object *args, object *env) {
   else return tf_progn(cdr(args),env);
 }
 
+//;; (case :type :tail)
+object *tf_case (object *args, object *env) {
+  object *test = eval(first(args), env);
+  args = cdr(args);
+  while (args != NULL) {
+    object *clause = first(args);
+    if (!consp(clause)) error(CASE, PSTR("illegal clause"), clause);
+    object *key = car(clause);
+    object *forms = cdr(clause);
+    if (consp(key)) {
+      while (key != NULL) {
+        if (eq(test,car(key))) return tf_progn(forms, env);
+        key = cdr(key);
+      }
+    } else if (eq(test,key) || eq(key,tee)) return tf_progn(forms, env);
+    args = cdr(args);
+  }
+  return nil;
+}
+
 //;; (and :type :tail)
 object *tf_and (object *args, object *env) {
   if (args == NULL) return tee;
