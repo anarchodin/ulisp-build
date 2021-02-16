@@ -1,11 +1,18 @@
 // Array utilities
 
+/*
+  nextpower2 - returns the smallest power of 2 that is equal to or greater than n
+*/
 int nextpower2 (int n) {
   n--; n |= n >> 1; n |= n >> 2; n |= n >> 4;
   n |= n >> 8; n |= n >> 16; n++;
   return n<2 ? 2 : n;
 }
 
+/*
+  buildarray - builds an array with n elements using a tree of size s which must be a power of 2
+  The elements are initialised to the default def
+*/
 object *buildarray (int n, int s, object *def) {
   int s2 = s>>1;
   if (s2 == 1) {
@@ -15,6 +22,7 @@ object *buildarray (int n, int s, object *def) {
   } else if (n >= s2) return cons(buildarray(s2, s2, def), buildarray(n - s2, s2, def));
   else return cons(buildarray(n, s2, def), nil);
 }
+
 
 object *makearray (symbol_t name, object *dims, object *def, bool bitp) {
   int size = 1;
@@ -35,6 +43,9 @@ object *makearray (symbol_t name, object *dims, object *def, bool bitp) {
   return ptr;
 }
 
+/*
+  arrayref - returns a pointer to the element specified by index in the array of size s
+*/
 object **arrayref (object *array, int index, int size) {
   int mask = nextpower2(size)>>1;
   object **p = &car(cdr(array));
@@ -45,6 +56,10 @@ object **arrayref (object *array, int index, int size) {
   return p;
 }
 
+/*
+  getarray - gets a pointer to an element in a multi-dimensional array, given a list of the subscripts subs
+  If the first subscript is negative it's a bit array and bit is set to the bit number
+*/
 object **getarray (symbol_t name, object *array, object *subs, object *env, int *bit) {
   int index = 0, size = 1, s;
   *bit = -1;
@@ -68,6 +83,9 @@ object **getarray (symbol_t name, object *array, object *subs, object *env, int 
   return arrayref(array, index, size);
 }
 
+/*
+  rslice - reads a slice of an array recursively
+*/
 void rslice (object *array, int size, int slice, object *dims, object *args) {
   int d = first(dims)->integer;
   for (int i = 0; i < d; i++) {
@@ -133,6 +151,9 @@ object *readbitarray (gfun_t gfun) {
   return array;
 }
 
+/*
+  pslice - prints a slice of an array recursively
+*/
 void pslice (object *array, int size, int slice, object *dims, pfun_t pfun, bool bitp) {
   bool spaces = true;
   if (slice == -1) { spaces = false; slice = 0; }
@@ -148,6 +169,9 @@ void pslice (object *array, int size, int slice, object *dims, pfun_t pfun, bool
   }
 }
 
+/*
+  printarray - prints an array
+*/
 void printarray (object *array, pfun_t pfun) {
   object *dimensions = cddr(array);
   object *dims = dimensions;

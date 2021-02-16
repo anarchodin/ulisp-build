@@ -1,6 +1,6 @@
 // Sleep
 
-#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DA48)
+#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DX48)
   // Interrupt vector for sleep watchdog
   ISR(WDT_vect) {
   WDTCSR |= 1<<WDIE;
@@ -12,7 +12,7 @@ void initsleep () {
 }
 
 void sleep (int secs) {
-#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DA48)
+#if !defined(CPU_ATmega4809) && !defined(CPU_AVR128DX48)
   // Set up Watchdog timer for 1 Hz interrupt
   WDTCSR = 1<<WDCE | 1<<WDE;
   WDTCSR = 1<<WDIE | 6<<WDP0;     // 1 sec interrupt

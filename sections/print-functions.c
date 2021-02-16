@@ -18,12 +18,17 @@ void pserial (char c) {
 const char ControlCodes[] PROGMEM = "Null\0SOH\0STX\0ETX\0EOT\0ENQ\0ACK\0Bell\0Backspace\0Tab\0Newline\0VT\0"
 "Page\0Return\0SO\0SI\0DLE\0DC1\0DC2\0DC3\0DC4\0NAK\0SYN\0ETB\0CAN\0EM\0SUB\0Escape\0FS\0GS\0RS\0US\0Space\0";
 
-void pcharacter (char c, pfun_t pfun) {
+/*
+  pcharacter - prints a character
+  If <= 32 prints character name; eg #\Space
+  If < 127 prints ASCII; eg #\A
+  Otherwise prints decimal; eg #\234
+*/
+void pcharacter (uint8_t c, pfun_t pfun) {
   if (!tstflag(PRINTREADABLY)) pfun(c);
   else {
     pfun('#'); pfun('\\');
-    if (c > 32) pfun(c);
-    else {
+    if (c <= 32) {
       #ifdef NEEDS_PROGMEM
       PGM_P p = ControlCodes;
       while (c > 0) {p = p + strlen_P(p) + 1; c--; }
@@ -32,7 +37,8 @@ void pcharacter (char c, pfun_t pfun) {
       while (c > 0) {p = p + strlen(p) + 1; c--; }
       #endif
       pfstring(p, pfun);
-    }
+    } else if (c < 127) pfun(c);
+    else pint(c, pfun);
   }
 }
 
@@ -92,14 +98,17 @@ void pint (int i, pfun_t pfun) {
   }
 }
 
-void pinthex (unsigned int i, pfun_t pfun) {
+/*
+  pintbase - prints an integer in a specified base. power2 is 1 for binary and 4 for hexadecimal
+*/
+void pintbase (unsigned int i, uint8_t power2, pfun_t pfun) {
   int lead = 0;
-  #if INT_MAX == 32767
-  unsigned int p = 0x1000;
+  #if UINT_MAX == 65535
+  unsigned int p = 1<<(16-power2);
   #else
-  unsigned int p = 0x10000000;
+  unsigned int p = 1<<(32-power2);
   #endif
-  for (unsigned int d=p; d>0; d=d/16) {
+  for (unsigned int d=p; d>0; d=d>>power2) {
     unsigned int j = i/d;
     if (j!=0 || lead || d==1) { pfun((j<10) ? j+'0' : j+'W'); lead=1;}
     i = i - j*d;
@@ -107,6 +116,9 @@ void pinthex (unsigned int i, pfun_t pfun) {
 }
 
 #ifdef CODE
+/*
+  printhex4 - prints a four-digit hexadecimal number with leading zeros
+*/
 void printhex4 (int i, pfun_t pfun) {
   int p = 0x1000;
   for (int d=p; d>0; d=d/16) {

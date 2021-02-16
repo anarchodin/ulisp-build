@@ -17,6 +17,9 @@ object *fn_expt (object *args, object *env) {
   float value = log(abs(float1)) * checkintfloat(EXPT, arg2);
   if (integerp(arg1) && integerp(arg2) && ((arg2->integer) > 0) && (abs(value) < 21.4875)) 
     return number(intpower(arg1->integer, arg2->integer));
-  if (float1 < 0) error2(EXPT, PSTR("invalid result"));
+  if (float1 < 0) {
+    if (integerp(arg2)) return makefloat((arg2->integer & 1) ? -exp(value) : exp(value));
+    else error2(EXPT, PSTR("invalid result"));
+  }
   return makefloat(exp(value));
 }

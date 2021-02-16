@@ -9,9 +9,14 @@ object *fn_length (object *args, object *env) {
   (void) env;
   object *arg = first(args);
   if (listp(arg)) return number(listlength(LENGTH, arg));
+  #ifndef ARRAY
+  if (!stringp(arg)) error(LENGTH, PSTR("argument is not a list or string"), arg);
+  return number(stringlength(arg));
+  #else
   if (stringp(arg)) return number(stringlength(arg));
   if (!(arrayp(arg) && cdr(cddr(arg)) == NULL)) error(LENGTH, PSTR("argument is not a list, 1d array, or string"), arg);
-  return number(-(first(cddr(arg))->integer));
+  return number(abs(first(cddr(arg))->integer));
+  #endif
 }
 
 //;; (list)

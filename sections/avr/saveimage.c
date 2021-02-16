@@ -41,7 +41,7 @@ unsigned int saveimage (object *arg) {
   if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, invalidarg, arg);
   int SymbolUsed = SymbolTop - SymbolTable;
   int bytesneeded = imagesize*4 + SymbolUsed + 10;
-  if (bytesneeded > EEPROMSIZE) error(SAVEIMAGE, PSTR("image size too large"), number(imagesize));
+  if (bytesneeded > EEPROMSIZE) error(SAVEIMAGE, PSTR("image too large"), number(imagesize));
   unsigned int addr = 0;
   EEPROMWriteInt(&addr, (unsigned int)arg);
   EEPROMWriteInt(&addr, imagesize);
@@ -98,8 +98,7 @@ unsigned int loadimage (object *arg) {
   gc(NULL, NULL);
   return imagesize;
 #else
-  unsigned int addr = 0;
-  EEPROMReadInt(&addr); // Skip eval address
+  unsigned int addr = 2; // Skip eval address
   unsigned int imagesize = EEPROMReadInt(&addr);
   if (imagesize == 0 || imagesize == 0xFFFF) error2(LOADIMAGE, PSTR("no saved image"));
   GlobalEnv = (object *)EEPROMReadInt(&addr);

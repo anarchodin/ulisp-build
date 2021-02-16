@@ -14,9 +14,9 @@ void checkanalogread (int pin) {
 #elif defined(ARDUINO_METRO_M4)
   if (!(pin>=14 && pin<=21)) error(ANALOGREAD, invalidpin, number(pin));
 #elif defined(ARDUINO_ITSYBITSY_M4)
-  if (!(pin>=14 && pin<=19)) error(ANALOGREAD, invalidpin, number(pin));
+  if (!(pin>=14 && pin<=20)) error(ANALOGREAD, invalidpin, number(pin));
 #elif defined(ARDUINO_FEATHER_M4)
-  if (!(pin>=14 && pin<=19)) error(ANALOGREAD, invalidpin, number(pin));
+  if (!(pin>=14 && pin<=20)) error(ANALOGREAD, invalidpin, number(pin));
 #elif defined(ARDUINO_GRAND_CENTRAL_M4)
   if (!((pin>=67 && pin<=74) || (pin>=54 && pin<=61)))  error(ANALOGREAD, invalidpin, number(pin));
 #elif defined(ARDUINO_BBC_MICROBIT)

@@ -53,8 +53,9 @@ object *fn_format (object *args, object *env) {
           if (args == NULL) formaterr(formatstr, noargument, n);
           if (!listp(first(args))) formaterr(formatstr, notalist, n);
           save = args; args = first(args); bra = n; tilde = false;
+          if (args == NULL) mute = true;
         }
-        else if (ch2 == 'A' || ch2 == 'S' || ch2 == 'D' || ch2 == 'G' || ch2 == 'X') {
+        else if (ch2 == 'A' || ch2 == 'S' || ch2 == 'D' || ch2 == 'G' || ch2 == 'X' || ch2 == 'B') {
           if (args == NULL) formaterr(formatstr, noargument, n);
           object *arg = first(args); args = cdr(args);
           uint8_t aw = atomwidth(arg);
@@ -63,10 +64,15 @@ object *fn_format (object *args, object *env) {
           if (ch2 == 'A') { prin1object(arg, pfun); indent(w, pad, pfun); }
           else if (ch2 == 'S') { printobject(arg, pfun); indent(w, pad, pfun); }
           else if (ch2 == 'D' || ch2 == 'G') { indent(w, pad, pfun); prin1object(arg, pfun); }
-          else if (ch2 == 'X' && integerp(arg)) {
-            uint8_t hw = hexwidth(arg); if (width < hw) w = 0; else w = width-hw;
-            indent(w, pad, pfun); pinthex(arg->integer, pfun);
-          } else if (ch2 == 'X') { indent(w, pad, pfun); prin1object(arg, pfun); }
+          else if (ch2 == 'X' || ch2 == 'B') {
+            if (integerp(arg)) {
+              uint8_t power2 = (ch2 == 'B') ? 1 : 4;
+              uint8_t hw = basewidth(arg, power2); if (width < hw) w = 0; else w = width-hw;
+              indent(w, pad, pfun); pintbase(arg->integer, power2, pfun);
+            } else {
+              indent(w, pad, pfun); prin1object(arg, pfun);
+            }
+          }
           tilde = false;
         } else formaterr(formatstr, PSTR("invalid directive"), n);
       }

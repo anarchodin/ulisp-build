@@ -52,7 +52,7 @@
   #define EEPROMSIZE 256                  /* Bytes */
   #define SYMBOLTABLESIZE 256             /* Bytes */
   #define STACKDIFF 320
-  #define CPU_AVR128DA48
+  #define CPU_AVR128DX48
 
 #elif defined(__AVR_AVR128DB48__)
   #define Serial Serial3
@@ -60,8 +60,8 @@
   #define EEPROMSIZE 256                  /* Bytes */
   #define SYMBOLTABLESIZE 256             /* Bytes */
   #define STACKDIFF 320
-  #define CPU_AVR128DA48
-  
+  #define CPU_AVR128DX48
+
 #else
 #error "Board not supported!"
 #endif

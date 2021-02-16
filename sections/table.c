@@ -1,5 +1,9 @@
 // Table lookup functions
 
+/*
+  builtin - looks up a string in lookup_table[], and returns the index of its entry,
+  or ENDFUNCTIONS if no match is found
+*/
 int builtin (char* n) {
   int entry = 0;
   while (entry < ENDKEYWORDS) {
@@ -31,6 +35,9 @@ int longsymbol (char *buffer) {
   return i + MAXSYMBOL; // First number unused by radix40
 }
 
+/*
+  lookupfn - looks up the entry for name in lookup_table[], and returns the function entry point
+*/
 intptr_t lookupfn (symbol_t name) {
 #ifdef NEEDS_PROGMEM
   return pgm_read_word(&lookup_table[name].fptr);
@@ -39,6 +46,9 @@ intptr_t lookupfn (symbol_t name) {
 #endif
 }
 
+/*
+  getcallc - gets the byte from lookup_table[] that specifies the call convention to use
+*/
 uint8_t getcallc (symbol_t name) {
 #ifdef NEEDS_PROGMEM
   return pgm_read_byte(&lookup_table[name].callc);
@@ -47,6 +57,10 @@ uint8_t getcallc (symbol_t name) {
 #endif  
 }
 
+/*
+  lookupbuiltin - looks up the entry for name in lookup_table[] and returns the name of the
+  function as a string
+*/
 char *lookupbuiltin (symbol_t name) {
   char *buffer = SymbolTop;
 #ifdef NEEDS_PROGMEM

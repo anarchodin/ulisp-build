@@ -58,7 +58,7 @@ int saveimage (object *arg) {
   // Save to EEPROM
   int bytesneeded = imagesize*8 + SYMBOLTABLESIZE + 20;
   if (bytesneeded > EEPROMSIZE) {
-    pfstring(PSTR("Error: Image size too large: "), pserial);
+    pfstring(PSTR("Error: image too large: "), pserial);
     pint(imagesize, pserial); pln(pserial);
     GCStack = NULL;
     longjmp(exception, 1);
@@ -230,7 +230,7 @@ int saveimage (object *arg) {
   if (!(arg == NULL || listp(arg))) error3(SAVEIMAGE, PSTR(" illegal argument"));
   int bytesneeded = imagesize*4 + SYMBOLTABLESIZE + 10;
   if (imagesize > IMAGEDATASIZE) {
-    pfstring(PSTR("Error: Image size too large: "), pserial);
+    pfstring(PSTR("Error: image too large: "), pserial);
     pint(imagesize, pserial); pln(pserial);
     GCStack = NULL;
     longjmp(exception, 1);
@@ -253,7 +253,7 @@ int saveimage (object *arg) {
   if (!(arg == NULL || listp(arg))) error3(SAVEIMAGE, PSTR(" illegal argument"));
   int bytesneeded = imagesize*4 + SYMBOLTABLESIZE + 10;
   if (imagesize > IMAGEDATASIZE) {
-    pfstring(PSTR("Error: Image size too large: "), pserial);
+    pfstring(PSTR("Error: image too large: "), pserial);
     pint(imagesize, pserial); pln(pserial);
     GCStack = NULL;
     longjmp(exception, 1);

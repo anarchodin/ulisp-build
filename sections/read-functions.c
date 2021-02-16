@@ -289,6 +289,8 @@ object *nextitem (gfun_t gfun) {
       p = p + strlen_P(p) + 1; c++;
 #endif
     }
+    // ASCII uses a binary-coded decimal system. Subtracting 5328 here decodes it.
+    if (index == 3) return character((buffer[0]*10+buffer[1])*10+buffer[2]-5328);
     error2(0, PSTR("unknown character"));
   }
 
@@ -324,6 +326,9 @@ object *readrest (gfun_t gfun) {
   return head;
 }
 
+/*
+  read - recursively reads a Lisp object from the stream gfun and returns it
+*/
 object *read (gfun_t gfun) {
   object *item = nextitem(gfun);
   if (item == (object *)KET) error2(0, PSTR("incomplete list"));

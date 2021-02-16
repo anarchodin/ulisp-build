@@ -41,7 +41,7 @@ unsigned int saveimage (object *arg) {
 #else
   if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, PSTR("illegal argument"), arg);
   int bytesneeded = imagesize*8 + SYMBOLTABLESIZE + 36;
-  if (bytesneeded > EEPROMSIZE) error(SAVEIMAGE, PSTR("image size too large"), number(imagesize));
+  if (bytesneeded > EEPROMSIZE) error(SAVEIMAGE, PSTR("image too large"), number(imagesize));
   EEPROM.begin(EEPROMSIZE);
   int addr = 0;
   EpromWriteInt(&addr, (uintptr_t)arg);

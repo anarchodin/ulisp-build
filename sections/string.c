@@ -12,7 +12,7 @@ object *startstring (symbol_t name) {
   return string;
 }
 
-void buildstring (char ch, int *chars, object **head) {
+void buildstring (uint8_t ch, int *chars, object **head) {
   static object* tail;
   static uint8_t shift;
   if (*chars == 0) {
@@ -35,7 +35,7 @@ void buildstring (char ch, int *chars, object **head) {
   readstring - reads characters from an input stream up to delimiter delim
   and returns a Lisp string
 */
-object *readstring (char delim, gfun_t gfun) {
+object *readstring (uint8_t delim, gfun_t gfun) {
   object *obj = myalloc();
   obj->type = STRING;
   int ch = gfun();
@@ -70,7 +70,7 @@ int stringlength (object *form) {
 /*
   nthchar - returns the nth character from a Lisp string
 */
-char nthchar (object *string, int n) {
+uint8_t nthchar (object *string, int n) {
   object *arg = cdr(string);
   int top;
   if (sizeof(int) == 4) { top = n>>2; n = 3 - (n&3); }

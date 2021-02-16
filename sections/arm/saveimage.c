@@ -147,7 +147,7 @@ int saveimage (object *arg) {
   // Save to DataFlash
   int SymbolUsed = SymbolTop - SymbolTable;
   int bytesneeded = 20 + SymbolUsed + CODESIZE + imagesize*8;
-  if (bytesneeded > DATAFLASHSIZE) error(SAVEIMAGE, PSTR("image size too large"), number(imagesize));
+  if (bytesneeded > DATAFLASHSIZE) error(SAVEIMAGE, PSTR("image too large"), number(imagesize));
   uint32_t addr = 0;
   FlashBeginWrite((bytesneeded+65535)/65536);
   FlashWriteInt(&addr, (uintptr_t)arg);

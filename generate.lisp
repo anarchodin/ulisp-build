@@ -23,6 +23,15 @@
                                                   :if-exists :supersede)
     ;; Write preamble
 
+    (format t "/* uLisp for ~a - www.ulisp.com
+   David Johnson-Davies - www.technoblogy.com - unreleased
+
+   This version includes alterations by Herbert Snorrason.
+
+   Licensed under the MIT license: https://opensource.org/licenses/MIT
+*/
+" platform)
+
     (write-section :header)
     (write-section :workspace)
 
@@ -78,7 +87,7 @@
 
     ;; Write PROGMEM strings
     (format t "~%// Insert your own function definitions here~%")
-    (format t "~%// Built-in procedure names - stored in PROGMEM~%~%")
+    (format t "~%// Built-in symbol names~%")
 
     (loop for i from 0
           for symbol in symbols do
@@ -86,6 +95,7 @@
                     (get-symbol-name symbol)))
     (write-table-strings definitions)
     (write-kw-strings platform)
+    (format t "// Insert your own function names here~%")
 
     ;; Write table
     (write-lookup-table symbols definitions)

@@ -80,10 +80,11 @@ object *tf_and (object *args, object *env) {
   return car(args);
 }
 
-//;; (or :type :tail)
-object *tf_or (object *args, object *env) {
+//;; (or :type :special)
+object *sp_or (object *args, object *env) {
   while (args != NULL) {
-    if (eval(car(args), env) != NULL) return car(args);
+    object *val = eval(car(args), env);
+    if (val != NULL) return val;
     args = cdr(args);
   }
   return nil;

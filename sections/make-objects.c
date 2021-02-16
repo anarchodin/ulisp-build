@@ -25,7 +25,7 @@ object *makefloat (float f) {
 /*
   character - make a character object with value c and return it
 */
-object *character (char c) {
+object *character (uint8_t c) {
   object *ptr = myalloc();
   ptr->type = CHARACTER;
   ptr->chars = c;
@@ -79,7 +79,7 @@ object *codehead (int entry) {
 /*
   stream - make a stream object defined by streamtype and address, and return it
 */
-object *stream (unsigned char streamtype, unsigned char address) {
+object *stream (uint8_t streamtype, uint8_t address) {
   object *ptr = myalloc();
   ptr->type = STREAM;
   ptr->integer = streamtype<<8 | address;

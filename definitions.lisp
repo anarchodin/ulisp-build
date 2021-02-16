@@ -92,7 +92,7 @@
 (defun write-lookup-table (symbols definitions &optional (stream *standard-output*))
   "Write the lookup table itself."
   (terpri)
-  (write-line "// Third parameter is no. of arguments; 1st hex digit is min, 2nd hex digit is max, 0xF is unlimited" stream)
+  (write-line "// Built-in symbol lookup table" stream)
   (write-line "const tbl_entry_t lookup_table[] PROGMEM = {" stream)
   ;; There are three sections to this now.
   ;; First, the "new-style" symbol definitions.
@@ -119,7 +119,7 @@
                 (incf i))))))))
   ;; Finally, write out the keywords.
   (write-kw-table *platform* stream)
-  (format stream "};~%"))
+  (format stream "// Insert your own table entries here~%};~%"))
 
 ;;; Keyword things.
 ; TODO: These are kinda similar. Macro?

@@ -14,7 +14,7 @@ uint8_t const TWI_SDA_PIN = 6;
 uint8_t const TWI_SCL_PIN = 5;
 #endif
 
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
 uint32_t const FREQUENCY = 400000L;  // Hardware I2C clock in Hz
 uint32_t const T_RISE = 300L;        // Rise time
 #else
@@ -29,7 +29,7 @@ uint8_t const I2C_WRITE = 0;
 #endif
 
 void I2Cinit (bool enablePullup) {
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
   if (enablePullup) {
     pinMode(PIN_WIRE_SDA, INPUT_PULLUP);
     pinMode(PIN_WIRE_SCL, INPUT_PULLUP);
@@ -49,7 +49,7 @@ void I2Cinit (bool enablePullup) {
 }
 
 int I2Cread () {
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
   if (I2CCount != 0) I2CCount--;
   while (!(TWI0.MSTATUS & TWI_RIF_bm));                               // Wait for read interrupt flag
   uint8_t data = TWI0.MDATA;
@@ -66,7 +66,7 @@ int I2Cread () {
 }
 
 bool I2Cwrite (uint8_t data) {
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
   while (!(TWI0.MSTATUS & TWI_WIF_bm));                               // Wait for write interrupt flag
   TWI0.MDATA = data;
   TWI0.MCTRLB = TWI_MCMD_RECVTRANS_gc;                                // Do nothing
@@ -80,7 +80,7 @@ bool I2Cwrite (uint8_t data) {
 }
 
 bool I2Cstart (uint8_t address, uint8_t read) {
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
   TWI0.MADDR = address<<1 | read;                                     // Send START condition
   while (!(TWI0.MSTATUS & (TWI_WIF_bm | TWI_RIF_bm)));                // Wait for write or read interrupt flag
   if ((TWI0.MSTATUS & TWI_ARBLOST_bm)) return false;                  // Return false if arbitration lost or bus error
@@ -103,7 +103,7 @@ bool I2Crestart (uint8_t address, uint8_t read) {
 }
 
 void I2Cstop (uint8_t read) {
-#if defined(CPU_ATmega4809) || defined(CPU_AVR128DA48)
+#if defined(CPU_ATmega4809) || defined(CPU_AVR128DX48)
   (void) read;
   TWI0.MCTRLB = TWI_ACKACT_bm | TWI_MCMD_STOP_gc;                     // Send STOP
 #else

@@ -33,7 +33,7 @@ object *fn_listp (object *args, object *env) {
 object *fn_symbolp (object *args, object *env) {
   (void) env;
   object *arg = first(args);
-  return symbolp(arg) ? tee : nil;
+  return (arg == NULL || symbolp(arg)) ? tee : nil;
 }
 
 //;; (boundp :min 1 :max 1)

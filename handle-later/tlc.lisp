@@ -62,7 +62,7 @@ int saveimage (object *arg) {
   unsigned int imagesize = compactimage(&arg);
   // Save to EEPROM
   if (imagesize > IMAGEDATASIZE) {
-    pfstring(PSTR("Error: Image size too large: "), pserial);
+    pfstring(PSTR("Error: image too large: "), pserial);
     pint(imagesize, pserial); pln(pserial);
     GCStack = NULL;
     longjmp(exception, 1);
