@@ -18,9 +18,11 @@
 
 (defun get-symbol-name (symbol-entry)
   "Return the symbol name for use in a C string."
-  (destructuring-bind (symbol &key &allow-other-keys)
+  (destructuring-bind (symbol &key (type :function) &allow-other-keys)
       symbol-entry
-    (string-downcase symbol)))
+    (string-downcase (if (eq type :keyword)
+                         (concatenate 'string ":" (string symbol))
+                         (string symbol)))))
 
 (defun get-symbol-enum (symbol-entry)
   "Return a string suitable as a C enum value."
@@ -29,16 +31,16 @@
                                 (type :function)
                        &allow-other-keys)
       symbol-entry
-    (string-upcase (if (eq type :keyword)
-                       (concatenate 'string "K_" enum)
-                       enum))))
+    (remove #\- (string-upcase (if (eq type :keyword)
+                                   (concatenate 'string "K_" enum)
+                                   enum)))))
 
 (defun get-symbol-label (symbol-entry)
   "Return a string naming the linker label for an implementing function."
   (destructuring-bind (symbol &key
                                 (type :function)
                                 (enum (string symbol))
-                                (label (string-downcase enum) label-given-p)
+                                (label (remove #\- (string-downcase enum)) label-given-p)
                                 (value (substitute #\_ #\- (string symbol)))
                                 context
                        &allow-other-keys)

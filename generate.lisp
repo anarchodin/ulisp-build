@@ -3,20 +3,12 @@
 (in-package :ulisp-build)
 
 ;; TODO: This is a temporary solution, while things are transitioned.
-(defparameter *sources*
-  '("src/specials.c" "src/accessors.c" "src/control-flow.c" "src/core.c" "src/list.c")
-  "Source files to be included in build.")
-
-;; FIXME: This gets done at load-time. Should be done for each pass.
-(defparameter *build-symbols* (mapcan #'get-symbol-entries *sources*)
-  "Symbols from the source files to be included.")
-
 (defun generate (output-file &optional (platform :avr))
   "Generate uLisp .ino files using the facilities defined by the system."
  (let ((*ulisp-features* (get-features platform))
        (*platform* platform)
-       (symbols (append *core-symbols* *build-symbols*))
-       (definitions *definitions*)) ; (case platform (:zero *definitions-zero*) (t *definitions*))
+       (symbols (append *core-symbols* (mapcan #'get-symbol-entries (get-sources platform))))
+       (definitions *definitions*))
     ;;
    (with-open-file (*standard-output* output-file :direction :output
                                                   :if-does-not-exist :create
@@ -79,7 +71,7 @@
     (when (member :interrupts *ulisp-features*)
       (write-section :interrupts))
     ;; Write function definitions
-    (dolist (source-file *sources*)
+    (dolist (source-file (get-sources platform))
       (let ((code (uiop:read-file-string
                    (asdf:system-relative-pathname :ulisp-build source-file))))
         (princ code)))

@@ -4,6 +4,7 @@
   :serial t
   :components ((:file "package")
                (:file "symbols")
+               (:file "features")
                (:file "platforms")
                (:file "definitions")
                (:file "functions")

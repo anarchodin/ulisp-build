@@ -1,9 +1,3 @@
-//; TODO: (car :min 1 :max 1)
-//; TODO: (first :min 1 :max 1 :label "fn_car")
-
-//; TODO: (cdr :min 1 :max 1)
-//; TODO: (rest :min 1 :max 1 :label "fn_cdr")
-
 //;; (length :min 1 :max 1)
 object *fn_length (object *args, object *env) {
   (void) env;
