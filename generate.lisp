@@ -2,7 +2,6 @@
 
 (in-package :ulisp-build)
 
-;; TODO: This is a temporary solution, while things are transitioned.
 (defun generate (output-file &optional (platform :avr))
   "Generate uLisp .ino files using the facilities defined by the system."
  (let ((*ulisp-features* (get-features platform))

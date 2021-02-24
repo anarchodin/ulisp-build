@@ -30,7 +30,11 @@ example use, which also uses [arduino-cli][arduino] to compile uLisp for the
 [arduino]: https://arduino.github.io/arduino-cli/
 [itsym4]: https://www.adafruit.com/product/3800
 
-## Licencing
+I will readily concede that this interface is not very inviting to those who are
+unused to working on the command line and/or with Common Lisp. I am open to
+suggestions towards improving that.
+
+## Licensing
 
 [uLisp's licence](http://www.ulisp.com/show?1B83) is fairly clear. The
 alterations made in this repository should be considered available under the

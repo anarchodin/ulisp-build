@@ -14,7 +14,7 @@
     (closure :type :symbol))
   "Symbols with no source file that have special meaning to the runtime or interpreter.")
 
-;; This structure holds definitions for the symbols we want to build into uLisp.
+;; TODO: Move remaining definitions to new form.
 (defparameter *definitions*
   '(("Other special forms"
      ((WITHOUTPUTTOSTRING "with-output-to-string" 8 1 :stringstream)
