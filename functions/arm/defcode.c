@@ -44,7 +44,7 @@ object *sp_defcode (object *args, object *env) {
     object *pair = car(globals);
     if (pair != NULL && car(pair) != var) { // Exclude me if I already exist
       object *codeid = second(pair);
-      if (codeid->type == CODE) {
+      if (codep(codeid)) {
         codesize = codesize + endblock(codeid) - startblock(codeid);
       }
     }
@@ -64,7 +64,7 @@ object *sp_defcode (object *args, object *env) {
       object *pair = car(globals);
       if (pair != NULL && car(pair) != var) { // Exclude me if I already exist
         object *codeid = second(pair);
-        if (codeid->type == CODE) {
+        if (codep(codeid)) {
           if (startblock(codeid) < smallest && startblock(codeid) >= origin) {
             smallest = startblock(codeid);
             block = codeid;

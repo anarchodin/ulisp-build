@@ -12,15 +12,28 @@
 #define push(x, y)         ((y) = cons((x),(y)))
 #define pop(y)             ((y) = cdr(y))
 
-#define integerp(x)        ((x) != NULL && (x)->type == NUMBER)
-#define floatp(x)          ((x) != NULL && (x)->type == FLOAT)
-#define symbolp(x)         ((x) != NULL && (x)->type == SYMBOL)
-#define stringp(x)         ((x) != NULL && (x)->type == STRING)
-#define characterp(x)      ((x) != NULL && (x)->type == CHARACTER)
+// Immediate types
+#define immediatep(x)      ((x) != NULL && ((uintptr_t)(x) & 2) == 2)
+#define fixnump(x)         ((x) != NULL && ((uintptr_t)(x) & 6) == 2)
+
+// Boxed types
+#define boxedp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && ((x)->type & 14) == 6)
+#define integerp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == NUMBER)
+#define floatp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == FLOAT)
+#define symbolp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == SYMBOL)
+#define stringp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STRING)
+#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == CHARACTER)
 #ifdef ARRAY
-#define arrayp(x)          ((x) != NULL && (x)->type == ARRAY)
+#define arrayp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == ARRAY)
 #endif
-#define streamp(x)         ((x) != NULL && (x)->type == STREAM)
+#ifdef CODE
+#define codep(x)           ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == CODE)
+#endif
+#define streamp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STREAM)
+
+// Dealing with types that can be either
+#define intp(x)            (integerp(x) || fixnump(x))
+#define getint(x)          (integerp(x) ? (x)->integer : (int)(x)>>3)
 
 #define mark(x)            (car(x) = (object *)(((uintptr_t)(car(x))) | MARKBIT))
 #define unmark(x)          (car(x) = (object *)(((uintptr_t)(car(x))) & ~MARKBIT))

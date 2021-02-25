@@ -6,7 +6,7 @@ object *call (int entry, int nargs, object *args, object *env) {
   int param[4];
   for (int i=0; i<nargs; i++) {
     object *arg = first(args);
-    if (integerp(arg)) param[i] = arg->integer;
+    if (intp(arg)) param[i] = getint(arg);
     else param[i] = (uintptr_t)arg;
     args = cdr(args);
   }
@@ -63,7 +63,7 @@ int assemble (int pass, int origin, object *entries, object *env, object *pcpair
           cdr(pcpair) = number(pc);
           arglist = cdr(arglist);
         }
-      } else if (integerp(argval)) {
+      } else if (intp(argval)) {
         if (pass == 2) {
           putcode(argval, origin, pc);
           #if defined(assemblerlist)

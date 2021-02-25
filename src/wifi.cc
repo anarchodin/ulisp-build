@@ -79,7 +79,7 @@ object *sp_withclient (object *args, object *env) {
     object *port = eval(second(params), env);
     int success;
     if (stringp(address)) success = client.connect(cstringbuf(address), checkinteger(WITHCLIENT, port));
-    else if (integerp(address)) success = client.connect(address->integer, checkinteger(WITHCLIENT, port));
+    else if (intp(address)) success = client.connect(getint(address), checkinteger(WITHCLIENT, port));
     else error2(WITHCLIENT, PSTR("invalid address"));
     if (!success) return nil;
     n = 1;

@@ -17,10 +17,10 @@ object *sp_incf (object *args, object *env) {
   if (bit != -1) {
     int increment;
     if (inc == NULL) increment = 1; else increment = checkbitvalue(INCF, inc);
-    int newvalue = (((*loc)->integer)>>bit & 1) + increment;
+    int newvalue = ((getint(*loc))>>bit & 1) + increment;
 
     if (newvalue & ~1) error2(INCF, PSTR("result is not a bit value"));
-    *loc = number((((*loc)->integer) & ~(1<<bit)) | newvalue<<bit);
+    *loc = number(((getint(*loc)) & ~(1<<bit)) | newvalue<<bit);
     return number(newvalue);
   }
 
@@ -31,11 +31,11 @@ object *sp_incf (object *args, object *env) {
     if (inc == NULL) increment = 1.0; else increment = checkintfloat(INCF, inc);
 
     *loc = makefloat(value + increment);
-  } else if (integerp(x) && (integerp(inc) || inc == NULL)) {
+  } else if (intp(x) && (intp(inc) || inc == NULL)) {
     int increment;
-    int value = x->integer;
+    int value = getint(x);
 
-    if (inc == NULL) increment = 1; else increment = inc->integer;
+    if (inc == NULL) increment = 1; else increment = getint(inc);
 
     if (increment < 1) {
       if (INT_MIN - increment > value) *loc = makefloat((float)value + (float)increment);
@@ -67,10 +67,10 @@ object *sp_decf (object *args, object *env) {
   if (bit != -1) {
     int decrement;
     if (dec == NULL) decrement = 1; else decrement = checkbitvalue(DECF, dec);
-    int newvalue = (((*loc)->integer)>>bit & 1) - decrement;
+    int newvalue = ((getint(*loc))>>bit & 1) - decrement;
 
     if (newvalue & ~1) error2(INCF, PSTR("result is not a bit value"));
-    *loc = number((((*loc)->integer) & ~(1<<bit)) | newvalue<<bit);
+    *loc = number(((getint(*loc)) & ~(1<<bit)) | newvalue<<bit);
     return number(newvalue);
   }
 
@@ -81,11 +81,11 @@ object *sp_decf (object *args, object *env) {
     if (dec == NULL) decrement = 1.0; else decrement = checkintfloat(DECF, dec);
 
     *loc = makefloat(value - decrement);
-  } if (integerp(x) && (integerp(dec) || dec == NULL)) {
+  } if (intp(x) && (intp(dec) || dec == NULL)) {
     int decrement;
-    int value = x->integer;
+    int value = getint(x);
 
-    if (dec == NULL) decrement = 1; else decrement = dec->integer;
+    if (dec == NULL) decrement = 1; else decrement = getint(dec);
 
     if (decrement < 1) {
       if (INT_MAX + decrement < value) *loc = makefloat((float)value - (float)decrement);

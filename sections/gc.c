@@ -6,14 +6,18 @@
 void markobject (object *obj) {
   MARK:
   if (obj == NULL) return;
+  if (immediatep(obj)) return; // Ignore non-pointers.
   if (marked(obj)) return;
 
   object* arg = car(obj);
   unsigned int type = obj->type;
   mark(obj);
 
-  if (type >= PAIR || type == ZZERO) { // cons
+  if ((type & 2) == 0) { // cons with allocated car
     markobject(arg);
+    obj = cdr(obj);
+    goto MARK;
+  } else if ((type & 15) != 6) { // cons with immediate car
     obj = cdr(obj);
     goto MARK;
   }

@@ -9,7 +9,7 @@ object *fn_length (object *args, object *env) {
   #else
   if (stringp(arg)) return number(stringlength(arg));
   if (!(arrayp(arg) && cdr(cddr(arg)) == NULL)) error(LENGTH, PSTR("argument is not a list, 1d array, or string"), arg);
-  return number(abs(first(cddr(arg))->integer));
+  return number(abs(getint(first(cddr(arg)))));
   #endif
 }
 

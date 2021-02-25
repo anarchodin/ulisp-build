@@ -54,8 +54,6 @@ object *eval (object *form, object *env) {
 
   if (form == NULL) return nil;
 
-  if (form->type >= NUMBER && form->type <= STRING) return form;
-
   if (symbolp(form)) {
     symbol_t name = form->name;
     if (name == NIL) return nil;
@@ -67,8 +65,10 @@ object *eval (object *form, object *env) {
     error(0, PSTR("undefined"), form);
   }
 
+  if (immediatep(form) || boxedp(form)) return form;
+
 #ifdef CODE
-  if (form->type == CODE) error2(0, PSTR("can't evaluate CODE header"));
+  if (codep(form)) error2(0, PSTR("can't evaluate CODE header"));
 #endif
 
   // It's a list

@@ -1,13 +1,25 @@
 // Make each type of object
 
+#if UINTPTR_MAX == 65535
+#define MAX_FIXNUM ((1 << 12) - 1)
+#define MIN_FIXNUM (-(1 << 12))
+#else
+#define MAX_FIXNUM ((1 << 28) - 1)
+#define MIN_FIXNUM (-(1 << 28))
+#endif
+
 /*
   number - make an integer object with value n and return it
 */
 object *number (int n) {
-  object *ptr = myalloc();
-  ptr->type = NUMBER;
-  ptr->integer = n;
-  return ptr;
+  if (n > MAX_FIXNUM || n < MIN_FIXNUM) {
+    object *ptr = myalloc();
+    ptr->type = NUMBER;
+    ptr->integer = n;
+    return ptr;
+  } else {
+    return (object *)((n << 3) | 2);
+  }
 }
 
 #ifdef FLOAT

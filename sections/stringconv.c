@@ -7,7 +7,7 @@ char *cstring (object *form, char *buffer, int buflen) {
   int index = 0;
   form = cdr(form);
   while (form != NULL) {
-    int chars = form->integer;
+    int chars = getint(form);
     for (int i=(sizeof(int)-1)*8; i>=0; i=i-8) {
       char ch = chars>>i & 0xFF;
       if (ch) {

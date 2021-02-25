@@ -7,8 +7,8 @@ object *fn_noteq (object *args, object *env) {
     nargs = cdr(nargs);
     while (nargs != NULL) {
       object *arg2 = first(nargs);
-      if (integerp(arg1) && integerp(arg2)) {
-        if ((arg1->integer) == (arg2->integer)) return nil;
+      if (intp(arg1) && intp(arg2)) {
+        if ((getint(arg1)) == (getint(arg2))) return nil;
       } else if ((checkintfloat(NOTEQ, arg1) == checkintfloat(NOTEQ, arg2))) return nil;
       nargs = cdr(nargs);
     }
@@ -24,8 +24,8 @@ object *fn_numeq (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     object *arg2 = first(args);
-    if (integerp(arg1) && integerp(arg2)) {
-      if (!((arg1->integer) == (arg2->integer))) return nil;
+    if (intp(arg1) && intp(arg2)) {
+      if (!((getint(arg1)) == (getint(arg2)))) return nil;
     } else if (!(checkintfloat(NUMEQ, arg1) == checkintfloat(NUMEQ, arg2))) return nil;
     arg1 = arg2;
     args = cdr(args);
@@ -40,8 +40,8 @@ object *fn_less (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     object *arg2 = first(args);
-    if (integerp(arg1) && integerp(arg2)) {
-      if (!((arg1->integer) < (arg2->integer))) return nil;
+    if (intp(arg1) && intp(arg2)) {
+      if (!((getint(arg1)) < (getint(arg2)))) return nil;
     } else if (!(checkintfloat(LESS, arg1) < checkintfloat(LESS, arg2))) return nil;
     arg1 = arg2;
     args = cdr(args);
@@ -56,8 +56,8 @@ object *fn_lesseq (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     object *arg2 = first(args);
-    if (integerp(arg1) && integerp(arg2)) {
-      if (!((arg1->integer) <= (arg2->integer))) return nil;
+    if (intp(arg1) && intp(arg2)) {
+      if (!((getint(arg1)) <= (getint(arg2)))) return nil;
     } else if (!(checkintfloat(LESSEQ, arg1) <= checkintfloat(LESSEQ, arg2))) return nil;
     arg1 = arg2;
     args = cdr(args);
@@ -72,8 +72,8 @@ object *fn_greater (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     object *arg2 = first(args);
-    if (integerp(arg1) && integerp(arg2)) {
-      if (!((arg1->integer) > (arg2->integer))) return nil;
+    if (intp(arg1) && intp(arg2)) {
+      if (!((getint(arg1)) > (getint(arg2)))) return nil;
     } else if (!(checkintfloat(GREATER, arg1) > checkintfloat(GREATER, arg2))) return nil;
     arg1 = arg2;
     args = cdr(args);
@@ -88,8 +88,8 @@ object *fn_greatereq (object *args, object *env) {
   args = cdr(args);
   while (args != NULL) {
     object *arg2 = first(args);
-    if (integerp(arg1) && integerp(arg2)) {
-      if (!((arg1->integer) >= (arg2->integer))) return nil;
+    if (intp(arg1) && intp(arg2)) {
+      if (!((getint(arg1)) >= (getint(arg2)))) return nil;
     } else if (!(checkintfloat(GREATEREQ, arg1) >= checkintfloat(GREATEREQ, arg2))) return nil;
     arg1 = arg2;
     args = cdr(args);
@@ -102,7 +102,7 @@ object *fn_plusp (object *args, object *env) {
   (void) env;
   object *arg = first(args);
   if (floatp(arg)) return ((arg->single_float) > 0.0) ? tee : nil;
-  else if (integerp(arg)) return ((arg->integer) > 0) ? tee : nil;
+  else if (intp(arg)) return (getint(arg) > 0) ? tee : nil;
   else error(PLUSP, notanumber, arg);
   return nil;
 }
@@ -112,7 +112,7 @@ object *fn_minusp (object *args, object *env) {
   (void) env;
   object *arg = first(args);
   if (floatp(arg)) return ((arg->single_float) < 0.0) ? tee : nil;
-  else if (integerp(arg)) return ((arg->integer) < 0) ? tee : nil;
+  else if (intp(arg)) return (getint(arg) < 0) ? tee : nil;
   else error(MINUSP, notanumber, arg);
   return nil;
 }
@@ -122,7 +122,7 @@ object *fn_zerop (object *args, object *env) {
   (void) env;
   object *arg = first(args);
   if (floatp(arg)) return ((arg->single_float) == 0.0) ? tee : nil;
-  else if (integerp(arg)) return ((arg->integer) == 0) ? tee : nil;
+  else if (intp(arg)) return (getint(arg) == 0) ? tee : nil;
   else error(ZEROP, notanumber, arg);
   return nil;
 }

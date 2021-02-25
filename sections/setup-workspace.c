@@ -30,6 +30,7 @@ object *myalloc () {
   inline makes gc significantly faster
 */
 inline void myfree (object *obj) {
+  if (((uintptr_t)obj & 2) != 0) return; // decline non-pointers
   car(obj) = NULL;
   cdr(obj) = Freelist;
   Freelist = obj;

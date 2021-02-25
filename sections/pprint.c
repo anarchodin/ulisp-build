@@ -20,7 +20,7 @@ uint8_t atomwidth (object *obj) {
 
 uint8_t basewidth (object *obj, uint8_t power2) {
   PrintCount = 0;
-  pintbase(obj->integer, power2, pcount);
+  pintbase(getint(obj), power2, pcount);
   return PrintCount;
 }
 

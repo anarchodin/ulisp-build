@@ -217,6 +217,7 @@ void printobject (object *form, pfun_t pfun) {
   else if (listp(form) && issymbol(car(form), CLOSURE)) pfstring(PSTR("<closure>"), pfun);
   else if (listp(form)) plist(form, pfun);
   else if (integerp(form)) pint(form->integer, pfun);
+  else if (fixnump(form)) pint((int)form>>3, pfun);
 #ifdef FLOAT
   else if (floatp(form)) pfloat(form->single_float, pfun);
 #endif

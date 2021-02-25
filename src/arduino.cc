@@ -5,8 +5,8 @@ object *fn_pinmode (object *args, object *env) {
   PinMode pm = INPUT;
   object *arg = second(args);
   if (keywordp(arg)) pm = checkkeyword(PINMODE, arg);
-  else if (integerp(arg)) {
-    int mode = arg->integer;
+  else if (intp(arg)) {
+    int mode = getint(arg);
     if (mode == 1) pm = OUTPUT; else if (mode == 2) pm = INPUT_PULLUP;
     #if defined(INPUT_PULLDOWN)
     else if (mode == 4) pm = INPUT_PULLDOWN;
@@ -30,7 +30,7 @@ object *fn_digitalwrite (object *args, object *env) {
   object *arg = second(args);
   int mode;
   if (keywordp(arg)) mode = checkkeyword(DIGITALWRITE, arg);
-  else if (integerp(arg)) mode = arg->integer ? HIGH : LOW;
+  else if (intp(arg)) mode = getint(arg) ? HIGH : LOW;
   else mode = (arg != nil) ? HIGH : LOW;
   digitalWrite(pin, mode);
   return arg;

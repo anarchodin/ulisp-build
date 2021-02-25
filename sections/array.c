@@ -28,13 +28,13 @@ object *makearray (symbol_t name, object *dims, object *def, bool bitp) {
   int size = 1;
   object *dimensions = dims;
   while (dims != NULL) {
-    int d = car(dims)->integer;
+    int d = getint(car(dims));
     if (d < 0) error2(MAKEARRAY, PSTR("dimension can't be negative"));
     size = size * d;
     dims = cdr(dims);
   }
   // Bit array identified by making first dimension negative
-  if (bitp) { size = (size + 31)/32; car(dimensions) = number(-(car(dimensions)->integer)); }
+  if (bitp) { size = (size + 31)/32; car(dimensions) = number(-getint(car(dimensions))); }
   object *ptr = myalloc();
   ptr->type = ARRAY;
   object *tree = nil;
@@ -66,7 +66,7 @@ object **getarray (symbol_t name, object *array, object *subs, object *env, int 
   bool bitp = false;
   object *dims = cddr(array);
   while (dims != NULL && subs != NULL) {
-    int d = car(dims)->integer;
+    int d = getint(car(dims));
     if (d < 0) { d = -d; bitp = true; }
     if (env) s = checkinteger(name, eval(car(subs), env)); else s = checkinteger(name, car(subs));
     if (s < 0 || s >= d) error(name, PSTR("subscript out of range"), car(subs));
@@ -87,7 +87,7 @@ object **getarray (symbol_t name, object *array, object *subs, object *env, int 
   rslice - reads a slice of an array recursively
 */
 void rslice (object *array, int size, int slice, object *dims, object *args) {
-  int d = first(dims)->integer;
+  int d = getint(first(dims));
   for (int i = 0; i < d; i++) {
     int index = slice * d + i;
     if (!consp(args)) error2(0, PSTR("initial contents don't match array type"));
@@ -144,7 +144,7 @@ object *readbitarray (gfun_t gfun) {
   while (head != NULL) {
     object **loc = arrayref(array, index>>5, size);
     int bit = index & 0x1F;
-    *loc = number((((*loc)->integer) & ~(1<<bit)) | (car(head)->integer)<<bit);
+    *loc = number(((getint(*loc)) & ~(1<<bit)) | (getint(car(head)))<<bit);
     index++;
     head = cdr(head);
   }
@@ -157,13 +157,13 @@ object *readbitarray (gfun_t gfun) {
 void pslice (object *array, int size, int slice, object *dims, pfun_t pfun, bool bitp) {
   bool spaces = true;
   if (slice == -1) { spaces = false; slice = 0; }
-  int d = first(dims)->integer;
+  int d = getint(first(dims));
   if (d < 0) d = -d;
   for (int i = 0; i < d; i++) {
     if (i && spaces) pfun(' ');
     int index = slice * d + i;
     if (cdr(dims) == NULL) {
-      if (bitp) pint(((*arrayref(array, index>>5, size))->integer)>>(index & 0x1f) & 1, pfun);
+      if (bitp) pint((getint(*arrayref(array, index>>5, size)))>>(index & 0x1f) & 1, pfun);
       else printobject(*arrayref(array, index, size), pfun);
     } else { pfun('('); pslice(array, size, index, cdr(dims), pfun, bitp); pfun(')'); }
   }
@@ -178,7 +178,7 @@ void printarray (object *array, pfun_t pfun) {
   bool bitp = false;
   int size = 1, n = 0;
   while (dims != NULL) {
-    int d = car(dims)->integer;
+    int d = getint(car(dims));
     if (d < 0) { bitp = true; d = -d; }
     size = size * d;
     dims = cdr(dims); n++;
