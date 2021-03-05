@@ -5,19 +5,19 @@
 (defvar *variant* :avr "Which variant to build.")
 
 (asdf:load-system "ulisp-build")
-(import '*variant* :ulisp-build)
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (in-package :ulisp-build))
 
-(defvar *output-file*
-  #-lispworks (asdf:system-relative-pathname "ulisp-build" "ulisp/ulisp.ino")
-  #+lispworks (capi:prompt-for-file "Output File" :operation :save
-                                                  :pathname "/Users/david/Desktop/"))
+(defvar *output-dir*
+  (asdf:system-relative-pathname "ulisp-build" "ulisp/"))
 
 ;; The system reads information from platforms.lisp for information about the
 ;; features to include. Currently defined there are :arm, :avr, and :riscv.
 
-(format t "Building uLisp for variant ~a.~%" *variant*)
-(generate *output-file* *variant*)
+(dolist (platform (mapcar #'car *platforms*))
+  (format t "Building uLisp for variant ~a.~%" platform)
+  (generate (merge-pathnames *output-dir* (format nil "ulisp-~a.ino" (string-downcase platform)))
+            platform))
 
+#+abcl (extensions:quit)
 #+ecl (ext:quit)

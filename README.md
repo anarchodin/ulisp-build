@@ -13,8 +13,14 @@ there'll be better documentation here.
 
 ## Usage
 
-The build system depends on a Common Lisp implementation. I have tested
-[SBCL](http://sbcl.org) and [ECL](https://common-lisp.net/project/ecl/).
+The build system is written in Common Lisp, and is being distributed as source
+code. Its use therefore requires an implementation of Common Lisp to be
+available. My main development environment is based on [SBCL](http://sbcl.org),
+but I have tried to ensure it also works on the quite portable
+[ECL](https://common-lisp.net/project/ecl/). The code is mostly portable Common
+Lisp, but it expects to be loaded using ASDF and therefore uses UIOP
+functions. As far as I can tell, all actively-developed implementations of
+Common Lisp provide these. In theory, any of them should work.
 
 There is an ASDF system definition here, so one way of running the system is by
 getting ASDF to find that and doing `(asdf:load-system :ulisp-build)`. All the
@@ -23,12 +29,8 @@ isn't the current package, which can probably be fixed with the right printer
 control variables.
 
 There's also the file `run-generator.lisp` file, which configures ASDF to search
-the current directory, loads the system, builds uLisp and (in ECL) exits. An
-example use, which also uses [arduino-cli][arduino] to compile uLisp for the
-[Adafruit ItsyBitsy M4 Express][itsym4], is in `test.sh`.
-
-[arduino]: https://arduino.github.io/arduino-cli/
-[itsym4]: https://www.adafruit.com/product/3800
+the current directory, loads the system, builds uLisp and (in ECL and ABCL)
+exits. A simple shell script that loads this file in ECL is in `build-all.sh`.
 
 I will readily concede that this interface is not very inviting to those who are
 unused to working on the command line and/or with Common Lisp. I am open to
