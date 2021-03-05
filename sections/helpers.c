@@ -33,9 +33,10 @@ int checkinteger (symbol_t name, object *obj) {
   if (integerp(obj)) {
     return obj->integer;
   } else if (fixnump(obj)) {
-    return (int)obj>>3; // Tagged integer, three bits go away.
+    return (intptr_t)obj>>3; // Tagged integer, three bits go away.
   } else {
     error(name, notaninteger, obj);
+    return 0; // Silence compiler warning.
   }
 }
 
@@ -50,7 +51,7 @@ int checkbitvalue (symbol_t name, object *obj) {
 
 #ifdef FLOAT
 float checkintfloat (symbol_t name, object *obj){
-  if (fixnump(obj)) return (int)obj>>3;
+  if (fixnump(obj)) return (intptr_t)obj>>3;
   if (integerp(obj)) return obj->integer;
   if (!floatp(obj)) error(name, notanumber, obj);
   return obj->single_float;

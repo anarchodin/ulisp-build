@@ -33,7 +33,7 @@
 
 // Dealing with types that can be either
 #define intp(x)            (integerp(x) || fixnump(x))
-#define getint(x)          (integerp(x) ? (x)->integer : (int)(x)>>3)
+#define getint(x)          (integerp(x) ? (x)->integer : (intptr_t)(x)>>3)
 
 #define mark(x)            (car(x) = (object *)(((uintptr_t)(car(x))) | MARKBIT))
 #define unmark(x)          (car(x) = (object *)(((uintptr_t)(car(x))) & ~MARKBIT))

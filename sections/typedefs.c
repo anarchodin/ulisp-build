@@ -12,7 +12,7 @@ typedef struct sobject {
       uintptr_t type;
       union {
         symbol_t name;
-        int integer;
+        intptr_t integer;
         int chars; // For strings
 #ifdef FLOAT
         float single_float;
