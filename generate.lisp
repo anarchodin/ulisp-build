@@ -73,6 +73,7 @@
     (dolist (source-file (get-sources platform))
       (let ((code (uiop:read-file-string
                    (asdf:system-relative-pathname :ulisp-build source-file))))
+        (format t "#line 1 \"~a\"~%" source-file)
         (princ code)))
     (write-definitions definitions)
 

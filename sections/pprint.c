@@ -28,6 +28,9 @@ boolean quoted (object *obj) {
   return (consp(obj) && car(obj) != NULL && car(obj)->name == QUOTE && consp(cdr(obj)) && cddr(obj) == NULL);
 }
 
+// Short-distance forward declaration.
+int subwidthlist(object *form, int w);
+
 int subwidth (object *obj, int w) {
   if (atom(obj)) return w - atomwidth(obj);
   if (quoted(obj)) return subwidthlist(car(cdr(obj)), w - 1);
@@ -42,6 +45,9 @@ int subwidthlist (object *form, int w) {
   }
   return w;
 }
+
+// Short-distance forward declaration.
+void supersub(object *form, int lm, int super, pfun_t pfun);
 
 void superprint (object *form, int lm, pfun_t pfun) {
   if (atom(form)) {

@@ -42,3 +42,32 @@ char *lookupbuiltin (symbol_t name);
 intptr_t lookupfn (symbol_t name);
 int builtin (char* n);
 void pfstring (PGM_P s, pfun_t pfun);
+
+void pserial(char c);
+void pint(int i, pfun_t pfun);
+void pintbase(unsigned int i, uint8_t power2, pfun_t pfun);
+#ifdef CODE
+void printhex4(int i, pfun_t pfun);
+#endif
+void pstring(char *s, pfun_t pfun);
+void printstring(object *form, pfun_t pfun);
+void pfl(pfun_t pfun);
+void pln(pfun_t pfun);
+void prin1object(object *form, pfun_t pfun);
+
+char *symbolname(symbol_t x);
+int maxbuffer(char *buffer);
+uint8_t nthchar(object *string, int n);
+
+void FlashWrite(uint8_t data);
+uint8_t FlashRead();
+
+bool listp(object *x);
+object *apply(symbol_t name, object *function, object *args, object *env);
+char *lookupsymbol (symbol_t name);
+
+uint8_t getcallc (symbol_t name);
+int listlength (symbol_t name, object *list);
+
+int glibrary ();
+int gserial ();

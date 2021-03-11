@@ -207,16 +207,6 @@ object *sp_untrace (object *args, object *env) {
   return args;
 }
 
-//;; (edit :min 1 :max 1)
-object *fn_edit (object *args, object *env) {
-  object *fun = first(args);
-  object *pair = findvalue(fun, env);
-  clrflag(EXITEDITOR);
-  object *arg = edit(eval(fun, env));
-  cdr(pair) = arg;
-  return arg;
-}
-
 object *edit (object *fun) {
   while (1) {
     if (tstflag(EXITEDITOR)) return fun;
@@ -232,6 +222,16 @@ object *edit (object *fun) {
     else if (c == 'x') fun = cdr(fun);
     else pserial('?');
   }
+}
+
+//;; (edit :min 1 :max 1)
+object *fn_edit (object *args, object *env) {
+  object *fun = first(args);
+  object *pair = findvalue(fun, env);
+  clrflag(EXITEDITOR);
+  object *arg = edit(eval(fun, env));
+  cdr(pair) = arg;
+  return arg;
 }
 
 //;; (require :min 1 :max 1)
