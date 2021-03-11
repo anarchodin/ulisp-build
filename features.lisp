@@ -2,6 +2,10 @@
 
 (in-package :ulisp-build)
 
+;; TODO: Take this flag away once things have been refactored.
+(defvar *include-lowlevel* nil
+  "Whether to include certain very low-level features.")
+
 (defparameter *base-sources*
   '("src/specials.c" "src/accessors.c" "src/control-flow.c" "src/core.c" "src/cxr.c" "src/list.c"
     "src/num-test.c" "src/bitwise.c" "src/string.c" "src/printer.c" "src/system.c" "src/char.c"
@@ -45,4 +49,5 @@
             (if (member :ethernet features)
                 *wifi-sources*)
             (if (member :gfx features)
-                *gfx-sources*))))
+                *gfx-sources*)
+            (if *include-lowlevel* '("src/low-level.c")))))
