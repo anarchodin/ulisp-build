@@ -14,10 +14,12 @@
 (defun get-section (section platform)
   "Retrieve source code for a given section on a given platform. Returns null if none is found."
   (let ((filename (or (section-pathname section platform) (section-pathname section))))
-    (if filename (uiop:read-file-string filename))))
+    (if filename (values (uiop:read-file-string filename) filename))))
 
 (defun write-section (section &key (platform *platform*) (stream *standard-output*))
   "Writes the source code of a given section for a given platform to a given stream."
-  (let ((code (get-section section platform)))
+  (multiple-value-bind (code filename)
+      (get-section section platform)
+    (if filename (format stream "#line 1 \"~a\"~%" filename))
     (if code (write-line code stream)
         (warn "No code for section ~a on platform ~a." section platform))))

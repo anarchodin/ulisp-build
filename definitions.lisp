@@ -142,6 +142,9 @@
              (dolist (entry (cdr entries))
                (format t "#elif defined(~a)~%" (car entry))
                (write-kw-enum (cadr entry)))
+             (write-line "#else")
+             (write-line "#warning \"no keywords used - something is up\"")
+             (write-kw-enum nil)
              (format t "#endif~%")))))))
 
 (defun write-kw-strings (platform &optional (stream *standard-output*))

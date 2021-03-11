@@ -214,7 +214,7 @@ void pstream (object *form, pfun_t pfun) {
 
 void printobject (object *form, pfun_t pfun) {
   if (form == NULL) pfstring(PSTR("nil"), pfun);
-  else if (listp(form) && issymbol(car(form), CLOSURE)) pfstring(PSTR("<closure>"), pfun);
+  else if (listp(form) && issymbol(car(form), CLOSURE)) pfstring(PSTR("#<closure>"), pfun);
   else if (listp(form)) plist(form, pfun);
   else if (integerp(form)) pint(form->integer, pfun);
   else if (fixnump(form)) pint((intptr_t)form>>3, pfun);
@@ -228,7 +228,7 @@ void printobject (object *form, pfun_t pfun) {
   else if (arrayp(form)) printarray(form, pfun);
 #endif
 #ifdef CODE
-  else if (form->type == CODE) pfstring(PSTR("code"), pfun);
+  else if (form->type == CODE) pfstring(PSTR("#<code>"), pfun);
 #endif
   else if (streamp(form)) pstream(form, pfun);
   else error2(0, PSTR("Error in print"));

@@ -208,6 +208,7 @@ object *nextitem (gfun_t gfun) {
     else if (ch == '*') return readbitarray(gfun);
     else if (ch >= '1' && ch <= '9' && (gfun() & ~0x20) == 'A') return readarray(ch - '0', read(gfun));
 #endif
+    else if (ch == '<') error2(0, PSTR("unreadable object"));
     else error2(0, PSTR("illegal character after #"));
     ch = gfun();
   }

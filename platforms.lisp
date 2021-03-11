@@ -10,7 +10,7 @@
 (defparameter *platforms*
   '((:avr
      (:types zzero symbol number stream character string pair)
-     (:streams serial i2c spi sd string)
+     (:streams serial i2c spi sd)
      (:keywords
       ("CPU_ATmega328P"
        (DIGITALWRITE HIGH LOW)
