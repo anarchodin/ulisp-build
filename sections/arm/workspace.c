@@ -36,7 +36,7 @@
   #define SYMBOLTABLESIZE 1024            /* Bytes */
   #define CODESIZE 256                    /* Bytes */
   #define STACKDIFF 400
-  #define CPU_ATSAMD51P20
+  #define CPU_ATSAMD51
 
 #elif defined(ARDUINO_SAMD_MKRZERO)
   #define WORKSPACESIZE (2816-SDSIZE)     /* Objects (8*bytes) */
