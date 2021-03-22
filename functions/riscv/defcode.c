@@ -1,6 +1,7 @@
 #include "ulisp.h"
 
 object *sp_defcode (object *args, object *env) {
+#if defined(CODESIZE)
   setflag(NOESC);
   checkargs(DEFCODE, 0x0F, args); // REVIEW: Is this actually needed?
   object *var = first(args);
@@ -41,9 +42,9 @@ object *sp_defcode (object *args, object *env) {
   object *globals = GlobalEnv;
   while (globals != NULL) {
     object *pair = car(globals);
-    if (pair != NULL && car(pair) != var) { // Exclude me if I already exist
+    if (pair != NULL && car(pair) != var && consp(cdr(pair))) { // Exclude me if I already exist
       object *codeid = second(pair);
-      if (codeid->type == CODE) {
+      if (codep(codeid)) {
         codesize = codesize + endblock(codeid) - startblock(codeid);
       }
     }
@@ -61,9 +62,9 @@ object *sp_defcode (object *args, object *env) {
     globals = GlobalEnv;
     while (globals != NULL) {
       object *pair = car(globals);
-      if (pair != NULL && car(pair) != var) { // Exclude me if I already exist
+      if (pair != NULL && car(pair) != var && consp(cdr(pair))) { // Exclude me if I already exist
         object *codeid = second(pair);
-        if (codeid->type == CODE) {
+        if (codep(codeid)) {
           if (startblock(codeid) < smallest && startblock(codeid) >= origin) {
             smallest = startblock(codeid);
             block = codeid;
@@ -96,4 +97,8 @@ object *sp_defcode (object *args, object *env) {
   else push(cons(var, val), GlobalEnv);
   clrflag(NOESC);
   return var;
+#else
+  error2(DEFCODE, PSTR("not available"));
+  return nil;
+#endif
 }
