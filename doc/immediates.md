@@ -60,6 +60,7 @@ have the same tag, for example.
 ### 16-bit
 
 - Fixnums are thirteen-bit signed integers. `(eql (logand fixnum 6) 2)`
+- Built-in symbols are eleven-bit values. `(eql (logand symbol 30) 14)`
 - Characters are eight-bit unsigned integers. `(eql (logand byte 254) 126)`
 
 ### 32-bit
@@ -71,6 +72,26 @@ have the same tag, for example.
 ### 64-bit
 
 For now, 64-bit platforms use the same tags as 32-bit systems.
+
+## Fixnums
+
+Fixnums are the original impetus for immediates. They get three fewer bits than
+platform pointers, and are two’s complement signed integers that do not need to
+be allocated from the workspace. This can save significant memory, particularly
+when combined with arrays. Aside from the size differences, there are no real
+platforms specifics.
+
+## Symbols
+
+The implementation of symbols in uLisp is somewhat unorthodox – there is a
+strong distinction between symbols that are built in to uLisp and two types of
+user symbols. On 32-bit and 64-bit platforms, all symbols are immediate
+values. On smaller platforms, only built-in symbols are immediate values, with
+user symbols being boxed values.
+
+Using immediate values for built-in symbols on all platforms ensures that their
+exact representation is known at compile-time, which is useful in various parts
+of the uLisp internals.
 
 ## Possible extensions
 

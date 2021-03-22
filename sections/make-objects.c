@@ -59,22 +59,38 @@ object *cons (object *arg1, object *arg2) {
   symbol - make a symbol object with value name and return it
 */
 object *symbol (symbol_t name) {
-  object *ptr = myalloc();
-  ptr->type = SYMBOL;
-  ptr->name = name;
-  return ptr;
+  #if PTRWIDTH == 16
+  if (name < 1600) {
+    return (object *)((name << 5) | 14);
+  } else {
+    object *ptr = myalloc();
+    ptr->type = SYMBOL;
+    ptr->name = name;
+    return ptr;
+  }
+  #else
+  return (object *)((name << 5) | 14);
+  #endif
 }
 
 /*
   newsymbol - looks through the workspace for an existing occurrence of symbol name and returns it,
   otherwise calls symbol(name) to create a new symbol.
+
+  NOTE: This function is basically the same thing as `symbol` on most platforms.
+  TODO: This is basically `intern`. Make it work with strings?
 */
 object *newsymbol (symbol_t name) {
+  #if PTRWIDTH == 16
+  if (name < 1600) return (object *)((name << 5) | 14);
   for (int i=0; i<WORKSPACESIZE; i++) {
     object *obj = &Workspace[i];
     if (symbolp(obj) && obj->name == name) return obj;
   }
   return symbol(name);
+  #else
+  return (object *)((name << 5) | 14);
+  #endif
 }
 
 #ifdef CODE

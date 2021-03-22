@@ -70,8 +70,7 @@ object *fn_sort (object *args, object *env) {
 object *fn_stringfn (object *args, object *env) {
   (void) env;
   object *arg = first(args);
-  int type = boxedp(arg) ? arg->type : 0;
-  if (type == STRING) return arg;
+  if (stringp(arg)) return arg;
   object *obj = myalloc();
   obj->type = STRING;
   if (characterp(arg)) {
@@ -80,8 +79,8 @@ object *fn_stringfn (object *args, object *env) {
     uint8_t shift = (sizeof(int)-1)*8;
     cell->chars = getcharacter(arg)<<shift;
     obj->cdr = cell;
-  } else if (type == SYMBOL) {
-    char *s = symbolname(arg->name);
+  } else if (symbolp(arg)) {
+    char *s = symbolname(getname(arg));
     char ch = *s++;
     object *head = NULL;
     int chars = 0;
@@ -99,7 +98,7 @@ object *fn_stringfn (object *args, object *env) {
 object *fn_concatenate (object *args, object *env) {
   (void) env;
   object *arg = first(args);
-  if (!(symbolp(arg) && (arg->name == STRINGFN)))
+  if (!(symbolp(arg) && (getname(arg) == STRINGFN)))
     error2(CONCATENATE, PSTR("only supports strings"));
   args = cdr(args);
   object *result = myalloc();

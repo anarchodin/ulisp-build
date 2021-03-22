@@ -175,7 +175,7 @@ object *sp_trace (object *args, object *env) {
   while (args != NULL) {
     object *var = first(args);
     if (!symbolp(var)) error(TRACE, notasymbol, var);
-    trace(var->name);
+    trace(getname(var));
     args = cdr(args);
   }
   int i = 0;
@@ -200,7 +200,7 @@ object *sp_untrace (object *args, object *env) {
     while (args != NULL) {
       object *var = first(args);
       if (!symbolp(var)) error(UNTRACE, notasymbol, var);
-      untrace(var->name);
+      untrace(getname(var));
       args = cdr(args);
     }
   }
@@ -249,8 +249,8 @@ object *fn_require (object *args, object *env) {
   object *line = read(glibrary);
   while (line != NULL) {
     // Is this the definition we want
-    int fname = first(line)->name;
-    if ((fname == DEFUN || fname == DEFVAR) && symbolp(second(line)) && second(line)->name == arg->name) {
+    int fname = getname(first(line));
+    if ((fname == DEFUN || fname == DEFVAR) && symbolp(second(line)) && getname(second(line)) == getname(arg)) {
       eval(line, env);
       return tee;
     }
@@ -265,11 +265,11 @@ object *fn_listlibrary (object *args, object *env) {
   GlobalStringIndex = 0;
   object *line = read(glibrary);
   while (line != NULL) {
-    int fname = first(line)->name;
+    int fname = getname(first(line));
     if (fname == DEFUN || fname == DEFVAR) {
-      pstring(symbolname(second(line)->name), pserial); pserial(' ');
+      pstring(symbolname(getname(second(line))), pserial); pserial(' ');
     }
     line = read(glibrary);
   }
-  return symbol(NOTHING); 
+  return symbol(NOTHING);
 }

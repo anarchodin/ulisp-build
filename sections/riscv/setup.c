@@ -9,7 +9,6 @@ void initgfx () {
 
 void initenv () {
   GlobalEnv = NULL;
-  tee = symbol(TEE);
 }
 
 void setup () {

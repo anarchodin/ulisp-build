@@ -221,7 +221,7 @@ void printobject (object *form, pfun_t pfun) {
 #ifdef FLOAT
   else if (floatp(form)) pfloat(form->single_float, pfun);
 #endif
-  else if (symbolp(form)) { if (form->name != NOTHING) pstring(symbolname(form->name), pfun); }
+  else if (symbolp(form)) { if (getname(form) != NOTHING) pstring(symbolname(getname(form)), pfun); }
   else if (characterp(form)) pcharacter(getcharacter(form), pfun);
   else if (stringp(form)) printstring(form, pfun);
 #ifdef ARRAY

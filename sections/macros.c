@@ -11,6 +11,8 @@
 #endif
 
 #define nil                NULL
+#define tee                ((object *)46) // (1 << 5) | 14)
+
 #define car(x)             (((object *) (x))->car)
 #define cdr(x)             (((object *) (x))->cdr)
 
@@ -27,8 +29,10 @@
 #define fixnump(x)         ((x) != NULL && ((uintptr_t)(x) & 6) == 2)
 
 #if PTRWIDTH == 16
+#define builtinp(x)        ((x) != NULL && ((uintptr_t)(x) & 30) == 14)
 #define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 254) == 126)
 #else
+#define symbolp(x)         ((x) != NULL && ((uintptr_t)(x) & 30) == 14)
 #define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 2046) == 1022)
 #endif
 
@@ -36,7 +40,9 @@
 #define boxedp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && ((x)->type & 14) == 6)
 #define integerp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == NUMBER)
 #define floatp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == FLOAT)
-#define symbolp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == SYMBOL)
+#if PTRWIDTH == 16
+#define usymbolp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == SYMBOL)
+#endif
 #define stringp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STRING)
 #ifdef ARRAY
 #define arrayp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == ARRAY)
@@ -53,9 +59,19 @@
 #define getcharacter(x)    ((uintptr_t)x>>11)
 #endif
 
+// Encoding immediates
+#define sym(x)             ((object *)(((x) << 5) | 14))
+
 // Dealing with types that can be either
 #define intp(x)            (integerp(x) || fixnump(x))
 #define getint(x)          (integerp(x) ? (x)->integer : (intptr_t)(x)>>3)
+
+#if PTRWIDTH == 16
+#define symbolp(x)         (usymbolp(x) || builtinp(x))
+#define getname(x)         (usymbolp(x) ? (x)->name : (symbol_t)(x)>>5)
+#else
+#define getname(x)         ((symbol_t)(x)>>5)
+#endif
 
 #define mark(x)            (car(x) = (object *)(((uintptr_t)(car(x))) | MARKBIT))
 #define unmark(x)          (car(x) = (object *)(((uintptr_t)(car(x))) & ~MARKBIT))

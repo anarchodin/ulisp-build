@@ -32,7 +32,6 @@ enum flag { PRINTREADABLY, RETURNFLAG, ESCAPE, EXITEDITOR, LIBRARYLOADED, NOESC 
 volatile uint8_t Flags = 0b00001; // PRINTREADABLY set by default
 
 // Forward references
-object *tee;
 object *tf_progn (object *form, object *env);
 object *eval (object *form, object *env);
 object *read (gfun_t gfun);

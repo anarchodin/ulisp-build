@@ -11,7 +11,7 @@ object *sp_defcode (object *args, object *env) {
   int regn = 0;
   while (params != NULL) {
     if (regn > 3) error(DEFCODE, PSTR("more than 4 parameters"), var);
-    object *regpair = cons(car(params), newsymbol((1*40+30+regn)*2560000)); // Symbol for a0 etc
+    object *regpair = cons(car(params), newsymbol((1*40+30+regn)*64000)); // Symbol for a0 etc
     push(regpair,env);
     regn++;
     params = cdr(params);
@@ -91,7 +91,7 @@ object *sp_defcode (object *args, object *env) {
   codesize = assemble(2, origin, cdr(args), env, pcpair);
 
   object *val = cons(codehead((origin+codesize)<<16 | origin), args);
-  object *pair = value(var->name, GlobalEnv);
+  object *pair = value(getname(var), GlobalEnv);
   if (pair != NULL) cdr(pair) = val;
   else push(cons(var, val), GlobalEnv);
   clrflag(NOESC);

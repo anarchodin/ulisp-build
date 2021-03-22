@@ -27,7 +27,7 @@ object *fn_pprintall (object *args, object *env) {
     object *var = car(pair);
     object *val = cdr(pair);
     pln(pfun);
-    if (consp(val) && symbolp(car(val)) && car(val)->name == LAMBDA) {
+    if (consp(val) && symbolp(car(val)) && getname(car(val)) == LAMBDA) {
       superprint(cons(symbol(DEFUN), cons(var, cdr(val))), 0, pfun);
     #ifdef CODE
     } else if (consp(val) && car(val)->type == CODE) {

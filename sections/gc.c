@@ -60,7 +60,6 @@ void gc (object *form, object *env) {
   #if defined(printgcs)
   int start = Freespace;
   #endif
-  markobject(tee);
   markobject(GlobalEnv);
   markobject(GCStack);
   markobject(form);

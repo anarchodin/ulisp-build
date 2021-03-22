@@ -55,7 +55,7 @@ object *eval (object *form, object *env) {
   if (form == NULL) return nil;
 
   if (symbolp(form)) {
-    symbol_t name = form->name;
+    symbol_t name = getname(form);
     if (name == NIL) return nil;
     object *pair = value(name, env);
     if (pair != NULL) return cdr(pair);
@@ -80,7 +80,7 @@ object *eval (object *form, object *env) {
 
   // List starts with a symbol?
   if (symbolp(function)) {
-    symbol_t name = function->name;
+    symbol_t name = getname(function);
 
     if ((name == LET) || (name == LETSTAR)) {
       int TCstart = TC;
@@ -156,7 +156,7 @@ object *eval (object *form, object *env) {
   args = cdr(head);
 
   if (symbolp(function)) {
-    symbol_t name = function->name;
+    symbol_t name = getname(function);
     if (name >= ENDFUNCTIONS) error(0, notvalid, fname);
     // HACK: Use fixnum encoding so we can use the same function here as elsewhere.
     checkargs(name, getcallc(name), (object *)((nargs<<3)|2));
@@ -167,12 +167,12 @@ object *eval (object *form, object *env) {
 
   if (consp(function)) {
     symbol_t name = 0;
-    if (!listp(fname)) name = fname->name;
+    if (!listp(fname)) name = getname(fname);
 
     if (issymbol(car(function), LAMBDA)) {
       form = closure(TCstart, name, NULL, cdr(function), args, &env);
       pop(GCStack);
-      int trace = tracing(fname->name);
+      int trace = tracing(name);
       if (trace) {
         object *result = eval(form, env);
         indent((--(TraceDepth[trace-1]))<<1, ' ', pserial);
@@ -198,8 +198,8 @@ object *eval (object *form, object *env) {
 #ifdef CODE
     if (car(function)->type == CODE) {
       int n = listlength(DEFCODE, second(function));
-      if (nargs<n) error2(fname->name, toofewargs);
-      if (nargs>n) error2(fname->name, toomanyargs);
+      if (nargs<n) error2(getname(fname), toofewargs);
+      if (nargs>n) error2(getname(fname), toomanyargs);
       // REVIEW: Why are these two different?
 #if defined(__arm__)
       uint32_t entry = startblock(car(function)) + 1;

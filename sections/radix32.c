@@ -1,7 +1,7 @@
 // Radix 40 encoding
 
-#define MAXSYMBOL 4096000000
-#define SYMLENGTH 6
+#define MAXSYMBOL 102400000
+#define SYMLENGTH 5
 
 /*
   toradix40 - returns a number from 0 to 39 if the character can be encoded, or -1 otherwise.
@@ -26,19 +26,19 @@ int fromradix40 (int n) {
 }
 
 /*
-  pack40 - packs six radix40-encoded characters from buffer and returns a 32 bit number.
+  pack40 - packs five radix40-encoded characters from buffer and returns a 32 bit number.
 */
 int pack40 (char *buffer) {
   int x = 0;
-  for (int i=0; i<6; i++) x = x * 40 + toradix40(buffer[i]);
+  for (int i=0; i<5; i++) x = x * 40 + toradix40(buffer[i]);
   return x;
 }
 
 /*
-  valid40 - returns true if the symbol in buffer can be encoded as six radix40-encoded characters.
+  valid40 - returns true if the symbol in buffer can be encoded as five radix40-encoded characters.
 */
 bool valid40 (char *buffer) {
-  for (int i=0; i<6; i++) if (toradix40(buffer[i]) == -1) return false;
+  for (int i=0; i<5; i++) if (toradix40(buffer[i]) == -1) return false;
   return true;
 }
 
@@ -46,8 +46,8 @@ char *symbolname (symbol_t x) {
   if (x < ENDKEYWORDS) return lookupbuiltin(x);
   else if (x >= MAXSYMBOL) return lookupsymbol(x);
   char *buffer = SymbolTop;
-  buffer[3] = '\0'; buffer[4] = '\0'; buffer[5] = '\0'; buffer[6] = '\0';
-  for (int n=5; n>=0; n--) {
+  buffer[3] = '\0'; buffer[4] = '\0'; buffer[5] = '\0';
+  for (int n=4; n>=0; n--) {
     buffer[n] = fromradix40(x % 40);
     x = x / 40;
   }

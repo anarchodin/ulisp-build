@@ -16,7 +16,7 @@ object *sp_defun (object *args, object *env) {
   object *var = first(args);
   if (!symbolp(var)) error(DEFUN, notasymbol, var);
   object *val = cons(symbol(LAMBDA), cdr(args));
-  object *pair = value(var->name,GlobalEnv);
+  object *pair = value(getname(var),GlobalEnv);
   if (pair != NULL) cdr(pair) = val;
   else push(cons(var, val), GlobalEnv);
   return var;
@@ -30,7 +30,7 @@ object *sp_defvar (object *args, object *env) {
   object *val = NULL;
   args = cdr(args);
   if (args != NULL) { setflag(NOESC); val = eval(first(args), env); clrflag(NOESC); }
-  object *pair = value(var->name, GlobalEnv);
+  object *pair = value(getname(var), GlobalEnv);
   if (pair != NULL) cdr(pair) = val;
   else push(cons(var, val), GlobalEnv);
   return var;

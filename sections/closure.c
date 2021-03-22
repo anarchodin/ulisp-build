@@ -3,21 +3,21 @@
 object *value (symbol_t n, object *env) {
   while (env != NULL) {
     object *pair = car(env);
-    if (pair != NULL && car(pair)->name == n) return pair;
+    if (pair != NULL && getname(car(pair)) == n) return pair;
     env = cdr(env);
   }
   return nil;
 }
 
 bool boundp (object *var, object *env) {
-  symbol_t varname = var->name;
+  symbol_t varname = getname(var);
   if (value(varname, env) != NULL) return true;
   if (value(varname, GlobalEnv) != NULL) return true;
   return false;
 }
 
 object *findvalue (object *var, object *env) {
-  symbol_t varname = var->name;
+  symbol_t varname = getname(var);
   object *pair = value(varname, env);
   if (pair == NULL) pair = value(varname, GlobalEnv);
   if (pair == NULL) error(0, PSTR("unknown variable"), var);
@@ -55,7 +55,7 @@ object *closure (int tc, symbol_t name, object *state, object *function, object 
   while (params != NULL) {
     object *value;
     object *var = first(params);
-    if (symbolp(var) && var->name == OPTIONAL) optional = true;
+    if (symbolp(var) && getname(var) == OPTIONAL) optional = true;
     else {
       if (consp(var)) {
         if (!optional) error(name, PSTR("invalid default value"), var);
@@ -65,7 +65,7 @@ object *closure (int tc, symbol_t name, object *state, object *function, object 
         if (!symbolp(var)) error(name, PSTR("illegal optional parameter"), var);
       } else if (!symbolp(var)) {
         error2(name, PSTR("illegal function parameter"));
-      } else if (var->name == AMPREST) {
+      } else if (getname(var) == AMPREST) {
         params = cdr(params);
         var = first(params);
         value = args;
@@ -90,7 +90,7 @@ object *closure (int tc, symbol_t name, object *state, object *function, object 
 
 object *apply (symbol_t name, object *function, object *args, object *env) {
   if (symbolp(function)) {
-    symbol_t fname = function->name;
+    symbol_t fname = getname(function);
     if (fname < ENDKEYWORDS) {
       uint8_t callc = getcallc(fname);
       if (callc < 0x80) { // High bit not set, so normal function.

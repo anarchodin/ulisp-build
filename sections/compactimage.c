@@ -28,7 +28,6 @@ void movepointer (object *from, object *to) {
 }
 
 uintptr_t compactimage (object **arg) {
-  markobject(tee);
   markobject(GlobalEnv);
   markobject(GCStack);
   object *firstfree = Workspace;
