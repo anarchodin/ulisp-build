@@ -23,9 +23,6 @@
       (WITHSPI "with-spi" 8 1)
       (WITHSDCARD "with-sd-card" 8 1))
      "sp")
-    ("Assembler"
-     ((DEFCODE NIL 8 1 :code))
-     "sp")
     ("System functions"
      ((RESTARTI2C "restart-i2c" 1 2)
       (DUMPIMAGE "dump-image" 0 0 :ignore)))

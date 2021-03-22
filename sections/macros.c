@@ -20,6 +20,9 @@
 #ifdef ARRAY
 #define arrayp(x)          ((x) != NULL && (x)->type == ARRAY)
 #endif
+#ifdef CODE
+#define codep(x)           ((x) != NULL && (x)->type == CODE)
+#endif
 #define streamp(x)         ((x) != NULL && (x)->type == STREAM)
 
 #define mark(x)            (car(x) = (object *)(((uintptr_t)(car(x))) | MARKBIT))

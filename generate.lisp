@@ -65,8 +65,6 @@
     (write-section :note)
     (write-section :sleep)
     (write-section :pprint)
-    (when (member :code *ulisp-features*)
-      (write-section :assembler))
     (when (member :interrupts *ulisp-features*)
       (write-section :interrupts))
     ;; Write function definitions
