@@ -74,11 +74,11 @@ object *fn_stringfn (object *args, object *env) {
   if (type == STRING) return arg;
   object *obj = myalloc();
   obj->type = STRING;
-  if (type == CHARACTER) {
+  if (characterp(arg)) {
     object *cell = myalloc();
     cell->car = NULL;
     uint8_t shift = (sizeof(int)-1)*8;
-    cell->chars = (arg->chars)<<shift;
+    cell->chars = getcharacter(arg)<<shift;
     obj->cdr = cell;
   } else if (type == SYMBOL) {
     char *s = symbolname(arg->name);

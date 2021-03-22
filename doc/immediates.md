@@ -70,8 +70,7 @@ have the same tag, for example.
 
 ### 64-bit
 
-- Fixnums are 61-bit signed integers. `(eql (logand fixnum 6) 2)`
-- Symbols are packed into 59 bits. `(eql (logand symbol 30) 14)`
+For now, 64-bit platforms use the same tags as 32-bit systems.
 
 ## Possible extensions
 

@@ -9,7 +9,7 @@
 
 (defparameter *platforms*
   '((:avr
-     (:types zzero symbol number stream character string pair)
+     (:types zzero symbol number stream string pair)
      (:streams serial i2c spi sd)
      (:keywords
       ("CPU_ATmega328P"
@@ -33,7 +33,7 @@
        (ANALOGREAD ADC_DAC0 ADC_TEMPERATURE)))
      (:features :dacreference))
     (:arm
-     (:types zzero symbol code number stream character float array string pair)
+     (:types zzero symbol code number stream float array string pair)
      (:streams serial i2c spi sd string gfx)
      (:keywords
       ("CPU_ATSAMD21"
@@ -71,7 +71,7 @@
        (ANALOGREFERENCE DEFAULT EXTERNAL)))
      (:features :float :gfx :code :array :stringstream :write-resolution))
     (:esp
-     (:types zzero symbol number stream character float array string pair)
+     (:types zzero symbol number stream float array string pair)
      (:streams serial i2c spi sd wifi string gfx)
      (:keywords 
       ("ESP8266"
@@ -82,7 +82,7 @@
        (PINMODE INPUT INPUT_PULLUP INPUT_PULLDOWN OUTPUT)))
      (:features :float :gfx :code :array :stringstream :ethernet))
     (:riscv
-     (:types zzero symbol code number stream character float array string pair)
+     (:types zzero symbol code number stream float array string pair)
      (:streams serial i2c spi sd string gfx)
      (:keywords
       (nil

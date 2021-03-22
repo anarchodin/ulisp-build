@@ -60,7 +60,7 @@ float checkintfloat (symbol_t name, object *obj){
 
 int checkchar (symbol_t name, object *obj) {
   if (!characterp(obj)) error(name, PSTR("argument is not a character"), obj);
-  return obj->chars;
+  return getcharacter(obj);
 }
 
 int isstream (object *obj){

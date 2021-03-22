@@ -1,5 +1,15 @@
 // C Macros
 
+#if UINTPTR_MAX == UINT64_MAX
+#define PTRWIDTH 64
+#elif UINTPTR_MAX == UINT32_MAX
+#define PTRWIDTH 32
+#elif UINTPTR_MAX == UINT16_MAX
+#define PTRWIDTH 16
+#else
+#error "What is this, a PDP-8?"
+#endif
+
 #define nil                NULL
 #define car(x)             (((object *) (x))->car)
 #define cdr(x)             (((object *) (x))->cdr)
@@ -16,13 +26,18 @@
 #define immediatep(x)      ((x) != NULL && ((uintptr_t)(x) & 2) == 2)
 #define fixnump(x)         ((x) != NULL && ((uintptr_t)(x) & 6) == 2)
 
+#if PTRWIDTH == 16
+#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 254) == 126)
+#else
+#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 2046) == 1022)
+#endif
+
 // Boxed types
 #define boxedp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && ((x)->type & 14) == 6)
 #define integerp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == NUMBER)
 #define floatp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == FLOAT)
 #define symbolp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == SYMBOL)
 #define stringp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STRING)
-#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == CHARACTER)
 #ifdef ARRAY
 #define arrayp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == ARRAY)
 #endif
@@ -30,6 +45,13 @@
 #define codep(x)           ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == CODE)
 #endif
 #define streamp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STREAM)
+
+// Extracting immediates
+#if PTRWIDTH == 16
+#define getcharacter(x)    ((char)((uintptr_t)x>>8))
+#else
+#define getcharacter(x)    ((uintptr_t)x>>11)
+#endif
 
 // Dealing with types that can be either
 #define intp(x)            (integerp(x) || fixnump(x))

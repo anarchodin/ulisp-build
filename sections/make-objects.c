@@ -38,10 +38,11 @@ object *makefloat (float f) {
   character - make a character object with value c and return it
 */
 object *character (uint8_t c) {
-  object *ptr = myalloc();
-  ptr->type = CHARACTER;
-  ptr->chars = c;
-  return ptr;
+  #if PTRWIDTH == 16
+  return (object *)((c << 8) | 126);
+  #else
+  return (object *)((c << 11) | 1022);
+  #endif
 }
 
 /*
