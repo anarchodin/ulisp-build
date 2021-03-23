@@ -30,6 +30,10 @@
   '("src/arrays.c")
   "Source files to be included in array-supporting variants.")
 
+(defparameter *asm-sources*
+  '("src/assembler.c")
+  "Source files to be included in assembler-supporting variants.")
+
 (defparameter *gfx-sources*
   '("src/gfx.cc")
   "Source files to be included for the graphics extension.")
@@ -46,6 +50,8 @@
                 *int-sources*)
             (if (member :array features)
                 *array-sources*)
+            (if (member :code features)
+                *asm-sources*)
             (if (member :ethernet features)
                 *wifi-sources*)
             (if (member :gfx features)
