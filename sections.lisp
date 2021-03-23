@@ -20,6 +20,9 @@
   "Writes the source code of a given section for a given platform to a given stream."
   (multiple-value-bind (code filename)
       (get-section section platform)
-    (if filename (format stream "#line 1 \"~a\"~%" filename))
+    (if filename
+        (format stream "#line 1 \"~a\"~%"
+                (uiop:enough-pathname filename
+                                      (asdf:system-relative-pathname :ulisp-build ""))))
     (if code (write-line code stream)
         (warn "No code for section ~a on platform ~a." section platform))))
