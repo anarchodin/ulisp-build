@@ -98,7 +98,11 @@ void checkargs (symbol_t name, uint8_t callc, object *args) {
   if ((callc & 0x0f) != 0x0f && nargs>(callc & 0x0f)) error2(name, toomanyargs);
 }
 
-int eq (object *arg1, object *arg2) {
+int eq (object *a, object *b) {
+  return (a == b) ? true : false;
+}
+
+int eql (object *arg1, object *arg2) {
   if (arg1 == arg2) return true;  // Same object
   if (immediatep(arg1) && immediatep(arg2)) return false; // Immediates are not eq if different objects.
   if ((arg1 == nil) || (arg2 == nil)) return false;  // Not both values
