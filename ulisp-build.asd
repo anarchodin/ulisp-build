@@ -1,6 +1,6 @@
 (defsystem "ulisp-build"
   :author ("David Johnson-Davies" "Herbert Snorrason")
-  :version "0.3.6-test"
+  :version "0.3.6.0"
   :serial t
   :components ((:file "package")
                (:file "symbols")
