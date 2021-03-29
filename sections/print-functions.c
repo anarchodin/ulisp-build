@@ -217,11 +217,12 @@ void printobject (object *form, pfun_t pfun) {
   else if (listp(form) && issymbol(car(form), CLOSURE)) pfstring(PSTR("#<closure>"), pfun);
   else if (listp(form)) plist(form, pfun);
   else if (integerp(form)) pint(form->integer, pfun);
+  else if (fixnump(form)) pint((intptr_t)form>>3, pfun);
 #ifdef FLOAT
   else if (floatp(form)) pfloat(form->single_float, pfun);
 #endif
-  else if (symbolp(form)) { if (form->name != NOTHING) pstring(symbolname(form->name), pfun); }
-  else if (characterp(form)) pcharacter(form->chars, pfun);
+  else if (symbolp(form)) { if (getname(form) != NOTHING) pstring(symbolname(getname(form)), pfun); }
+  else if (characterp(form)) pcharacter(getcharacter(form), pfun);
   else if (stringp(form)) printstring(form, pfun);
 #ifdef ARRAY
   else if (arrayp(form)) printarray(form, pfun);

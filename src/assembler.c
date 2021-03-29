@@ -6,7 +6,7 @@ object *call (int entry, int nargs, object *args, object *env) {
   int param[4];
   for (int i=0; i<nargs; i++) {
     object *arg = first(args);
-    if (integerp(arg)) param[i] = arg->integer;
+    if (intp(arg)) param[i] = getint(arg);
     else param[i] = (uintptr_t)arg;
     args = cdr(args);
   }
@@ -63,7 +63,7 @@ int assemble (int pass, int origin, object *entries, object *env, object *pcpair
           cdr(pcpair) = number(pc);
           arglist = cdr(arglist);
         }
-      } else if (integerp(argval)) {
+      } else if (intp(argval)) {
         if (pass == 2) {
           putcode(argval, origin, pc);
           #if defined(assemblerlist)
@@ -84,9 +84,9 @@ int assemble (int pass, int origin, object *entries, object *env, object *pcpair
 // The REGSYMBOL macro encodes symbols for registers.
 // These differ by platform; ARM uses 'r0' and RISC-V uses 'a0'.
 #if defined(__arm__)
-#define REGSYMBOL (18*40+30+regn)*2560000)
+#define REGSYMBOL (18*40+30+regn)*64000)
 #elif defined(__riscv)
-#define REGSYMBOL (1*40+30+regn)*2560000)
+#define REGSYMBOL (1*40+30+regn)*64000)
 #endif
 
 //;; (defcode :type :special)
@@ -107,12 +107,12 @@ object *sp_defcode (object *args, object *env) {
     regn++;
     params = cdr(params);
   }
-  
+
   // Make *pc* a local variable
-  object *pcpair = cons(newsymbol(pack40((char*)"*pc*\0\0")), number(0));
+  object *pcpair = cons(newsymbol(pack40((char*)"*pc*\0")), number(0));
   push(pcpair,env);
   args = cdr(args);
-  
+
   // Make labels into local variables
   object *entries = cdr(args);
   while (entries != NULL) {
@@ -182,7 +182,7 @@ object *sp_defcode (object *args, object *env) {
   codesize = assemble(2, origin, cdr(args), env, pcpair);
 
   object *val = cons(codehead((origin+codesize)<<16 | origin), args);
-  object *pair = value(var->name, GlobalEnv);
+  object *pair = value(getname(var), GlobalEnv);
   if (pair != NULL) cdr(pair) = val;
   else push(cons(var, val), GlobalEnv);
   clrflag(NOESC);

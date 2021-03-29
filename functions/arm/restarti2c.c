@@ -8,7 +8,7 @@ object *fn_restarti2c (object *args, object *env) {
   I2CCount = 0;
   if (args != NULL) {
     object *rw = first(args);
-    if (integerp(rw)) I2CCount = rw->integer;
+    if (intp(rw)) I2CCount = getint(rw);
     read = (rw != NULL);
   }
   int address = stream & 0xFF;

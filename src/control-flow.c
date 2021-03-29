@@ -59,10 +59,10 @@ object *tf_case (object *args, object *env) {
     object *forms = cdr(clause);
     if (consp(key)) {
       while (key != NULL) {
-        if (eq(test,car(key))) return tf_progn(forms, env);
+        if (eql(test,car(key))) return tf_progn(forms, env);
         key = cdr(key);
       }
-    } else if (eq(test,key) || eq(key,tee)) return tf_progn(forms, env);
+    } else if (eql(test,key) || eql(key,tee)) return tf_progn(forms, env);
     args = cdr(args);
   }
   return nil;

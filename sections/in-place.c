@@ -15,7 +15,7 @@ object **place (symbol_t name, object *args, object *env, int *bit) {
   if (atom(args)) return &cdr(findvalue(args, env));
   object* function = first(args);
   if (symbolp(function)) {
-    symbol_t fname = function->name;
+    symbol_t fname = getname(function);
     if (fname == CAR || fname == FIRST) {
       object *value = eval(second(args), env);
       if (!listp(value)) error(name, PSTR("can't take car"), value);

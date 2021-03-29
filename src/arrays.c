@@ -14,7 +14,7 @@ object *fn_arraydimensions (object *args, object *env) {
   object *array = first(args);
   if (!arrayp(array)) error(ARRAYDIMENSIONS, PSTR("argument is not an array"), array);
   object *dimensions = cddr(array);
-  return (first(dimensions)->integer < 0) ? cons(number(-(first(dimensions)->integer)), cdr(dimensions)) : dimensions;
+  return (getint(first(dimensions)) < 0) ? cons(number(-getint(first(dimensions))), cdr(dimensions)) : dimensions;
 }
 
 //;; (make-array :min 1 :max 5)
@@ -47,5 +47,5 @@ object *fn_aref (object *args, object *env) {
   if (!arrayp(array)) error(AREF, PSTR("first argument is not an array"), array);
   object *loc = *getarray(AREF, array, cdr(args), 0, &bit);
   if (bit == -1) return loc;
-  else return number((loc->integer)>>bit & 1);
+  else return number(getint(loc)>>bit & 1);
 }

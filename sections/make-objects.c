@@ -1,13 +1,25 @@
 // Make each type of object
 
+#if UINTPTR_MAX == 65535
+#define MAX_FIXNUM ((1 << 12) - 1)
+#define MIN_FIXNUM (-(1 << 12))
+#else
+#define MAX_FIXNUM ((1 << 28) - 1)
+#define MIN_FIXNUM (-(1 << 28))
+#endif
+
 /*
   number - make an integer object with value n and return it
 */
 object *number (int n) {
-  object *ptr = myalloc();
-  ptr->type = NUMBER;
-  ptr->integer = n;
-  return ptr;
+  if (n > MAX_FIXNUM || n < MIN_FIXNUM) {
+    object *ptr = myalloc();
+    ptr->type = NUMBER;
+    ptr->integer = n;
+    return ptr;
+  } else {
+    return (object *)((n << 3) | 2);
+  }
 }
 
 #ifdef FLOAT
@@ -26,10 +38,11 @@ object *makefloat (float f) {
   character - make a character object with value c and return it
 */
 object *character (uint8_t c) {
-  object *ptr = myalloc();
-  ptr->type = CHARACTER;
-  ptr->chars = c;
-  return ptr;
+  #if PTRWIDTH == 16
+  return (object *)((c << 8) | 126);
+  #else
+  return (object *)((c << 11) | 1022);
+  #endif
 }
 
 /*
@@ -46,22 +59,38 @@ object *cons (object *arg1, object *arg2) {
   symbol - make a symbol object with value name and return it
 */
 object *symbol (symbol_t name) {
-  object *ptr = myalloc();
-  ptr->type = SYMBOL;
-  ptr->name = name;
-  return ptr;
+  #if PTRWIDTH == 16
+  if (name < 1600) {
+    return (object *)((name << 5) | 14);
+  } else {
+    object *ptr = myalloc();
+    ptr->type = SYMBOL;
+    ptr->name = name;
+    return ptr;
+  }
+  #else
+  return (object *)((name << 5) | 14);
+  #endif
 }
 
 /*
   newsymbol - looks through the workspace for an existing occurrence of symbol name and returns it,
   otherwise calls symbol(name) to create a new symbol.
+
+  NOTE: This function is basically the same thing as `symbol` on most platforms.
+  TODO: This is basically `intern`. Make it work with strings?
 */
 object *newsymbol (symbol_t name) {
+  #if PTRWIDTH == 16
+  if (name < 1600) return (object *)((name << 5) | 14);
   for (int i=0; i<WORKSPACESIZE; i++) {
     object *obj = &Workspace[i];
     if (symbolp(obj) && obj->name == name) return obj;
   }
   return symbol(name);
+  #else
+  return (object *)((name << 5) | 14);
+  #endif
 }
 
 #ifdef CODE

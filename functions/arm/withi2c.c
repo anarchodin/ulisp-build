@@ -14,7 +14,7 @@ object *sp_withi2c (object *args, object *env) {
   I2CCount = 0;
   if (params != NULL) {
     object *rw = eval(first(params), env);
-    if (integerp(rw)) I2CCount = rw->integer;
+    if (intp(rw)) I2CCount = getint(rw);
     read = (rw != NULL);
   }
   // Top bit of address is I2C port

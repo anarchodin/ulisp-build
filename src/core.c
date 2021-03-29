@@ -69,3 +69,9 @@ object *fn_eq (object *args, object *env) {
   (void) env;
   return eq(first(args), second(args)) ? tee : nil;
 }
+
+//;; (eql :min 2 :max 2)
+object *fn_eql (object *args, object *env) {
+  (void) env;
+  return eql(first(args), second(args)) ? tee : nil;
+}

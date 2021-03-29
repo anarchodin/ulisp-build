@@ -1,6 +1,18 @@
 // C Macros
 
+#if UINTPTR_MAX == UINT64_MAX
+#define PTRWIDTH 64
+#elif UINTPTR_MAX == UINT32_MAX
+#define PTRWIDTH 32
+#elif UINTPTR_MAX == UINT16_MAX
+#define PTRWIDTH 16
+#else
+#error "What is this, a PDP-8?"
+#endif
+
 #define nil                NULL
+#define tee                ((object *)46) // (1 << 5) | 14)
+
 #define car(x)             (((object *) (x))->car)
 #define cdr(x)             (((object *) (x))->cdr)
 
@@ -12,18 +24,54 @@
 #define push(x, y)         ((y) = cons((x),(y)))
 #define pop(y)             ((y) = cdr(y))
 
-#define integerp(x)        ((x) != NULL && (x)->type == NUMBER)
-#define floatp(x)          ((x) != NULL && (x)->type == FLOAT)
-#define symbolp(x)         ((x) != NULL && (x)->type == SYMBOL)
-#define stringp(x)         ((x) != NULL && (x)->type == STRING)
-#define characterp(x)      ((x) != NULL && (x)->type == CHARACTER)
+// Immediate types
+#define immediatep(x)      (((uintptr_t)(x) & 2) == 2)
+#define fixnump(x)         (((uintptr_t)(x) & 6) == 2)
+
+#if PTRWIDTH == 16
+#define builtinp(x)        (((uintptr_t)(x) & 30) == 14)
+#define characterp(x)      (((uintptr_t)(x) & 254) == 126)
+#else
+#define symbolp(x)         (((uintptr_t)(x) & 30) == 14)
+#define characterp(x)      (((uintptr_t)(x) & 2046) == 1022)
+#endif
+
+// Boxed types
+#define boxedp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && ((x)->type & 14) == 6)
+#define integerp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == NUMBER)
+#define floatp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == FLOAT)
+#if PTRWIDTH == 16
+#define usymbolp(x)        ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == SYMBOL)
+#endif
+#define stringp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STRING)
 #ifdef ARRAY
-#define arrayp(x)          ((x) != NULL && (x)->type == ARRAY)
+#define arrayp(x)          ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == ARRAY)
 #endif
 #ifdef CODE
-#define codep(x)           ((x) != NULL && (x)->type == CODE)
+#define codep(x)           ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == CODE)
 #endif
-#define streamp(x)         ((x) != NULL && (x)->type == STREAM)
+#define streamp(x)         ((x) != NULL && ((uintptr_t)(x) & 2) == 0 && (x)->type == STREAM)
+
+// Extracting immediates
+#if PTRWIDTH == 16
+#define getcharacter(x)    ((unsigned char)((uintptr_t)x>>8))
+#else
+#define getcharacter(x)    ((uintptr_t)x>>11)
+#endif
+
+// Encoding immediates
+#define sym(x)             ((object *)(((x) << 5) | 14))
+
+// Dealing with types that can be either
+#define intp(x)            (integerp(x) || fixnump(x))
+#define getint(x)          (fixnump(x) ? (intptr_t)(x)>>3 : (x)->integer)
+
+#if PTRWIDTH == 16
+#define symbolp(x)         (usymbolp(x) || builtinp(x))
+#define getname(x)         (builtinp(x) ? (symbol_t)(x)>>5 : (x)->name)
+#else
+#define getname(x)         ((symbol_t)(x)>>5)
+#endif
 
 #define mark(x)            (car(x) = (object *)(((uintptr_t)(car(x))) | MARKBIT))
 #define unmark(x)          (car(x) = (object *)(((uintptr_t)(car(x))) & ~MARKBIT))

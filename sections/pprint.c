@@ -20,12 +20,12 @@ uint8_t atomwidth (object *obj) {
 
 uint8_t basewidth (object *obj, uint8_t power2) {
   PrintCount = 0;
-  pintbase(obj->integer, power2, pcount);
+  pintbase(getint(obj), power2, pcount);
   return PrintCount;
 }
 
 boolean quoted (object *obj) {
-  return (consp(obj) && car(obj) != NULL && car(obj)->name == QUOTE && consp(cdr(obj)) && cddr(obj) == NULL);
+  return (consp(obj) && car(obj) != NULL && getname(car(obj)) == QUOTE && consp(cdr(obj)) && cddr(obj) == NULL);
 }
 
 // Short-distance forward declaration.
@@ -51,7 +51,7 @@ void supersub(object *form, int lm, int super, pfun_t pfun);
 
 void superprint (object *form, int lm, pfun_t pfun) {
   if (atom(form)) {
-    if (symbolp(form) && form->name == NOTHING) pstring(symbolname(form->name), pfun);
+    if (symbolp(form) && getname(form) == NOTHING) pstring(symbolname(getname(form)), pfun);
     else printobject(form, pfun);
   }
   else if (quoted(form)) { pfun('\''); superprint(car(cdr(form)), lm + 1, pfun); }
@@ -73,7 +73,7 @@ void supersub (object *form, int lm, int super, pfun_t pfun) {
   int special = 0, separate = 1;
   object *arg = car(form);
   if (symbolp(arg)) {
-    int name = arg->name;
+    int name = getname(arg);
 #ifdef CODE
     if (name == DEFUN || name == DEFCODE) special = 2;
 #else

@@ -226,8 +226,8 @@ object *nextitem (gfun_t gfun) {
 
 #if SYMLENGTH == 3
   buffer[2] = '\0'; // In case symbol is one letter
-#elif SYMLENGTH == 6
-  buffer[2] = '\0'; buffer[3] = '\0'; buffer[4] = '\0'; buffer[5] = '\0'; // In case symbol is < 5 letters
+#elif SYMLENGTH == 5
+  buffer[2] = '\0'; buffer[3] = '\0'; buffer[4] = '\0'; // In case symbol is < 4 letters
 #endif
 
   while(!issp(ch) && ch != ')' && ch != '(' && index < bufmax) {

@@ -1,19 +1,21 @@
 // Helper functions
 
 bool consp (object *x) {
-  if (x == NULL) return false;
+  if (x == NULL || immediatep(x)) return false; // NULL or immediate are not conses.
   unsigned int type = x->type;
-  return type >= PAIR || type == ZZERO;
+  return (type & 14) != 6; // Anything that doesn't have a type flag in car is a cons.
 }
 
 #define atom(x) (!consp(x))
 
 bool listp (object *x) {
-  if (x == NULL) return true;
+  if (x == NULL) return true; // NIL is the empty list, so true.
+  if (immediatep(x)) return false; // Not a list if it's immediate.
   unsigned int type = x->type;
-  return type >= PAIR || type == ZZERO;
+  return (type & 14) != 6; // It's a cons if car isn't a type identifier.
 }
 
+// REVIEW: This may need to become a function again.
 #define improperp(x) (!listp(x))
 
 object *quote (object *arg) {
@@ -28,14 +30,20 @@ int digitvalue (char d) {
 }
 
 int checkinteger (symbol_t name, object *obj) {
-  if (!integerp(obj)) error(name, notaninteger, obj);
-  return obj->integer;
+  if (integerp(obj)) {
+    return obj->integer;
+  } else if (fixnump(obj)) {
+    return (intptr_t)obj>>3; // Tagged integer, three bits go away.
+  } else {
+    error(name, notaninteger, obj);
+    return 0; // Silence compiler warning.
+  }
 }
 
 #ifndef __AVR__
 int checkbitvalue (symbol_t name, object *obj) {
-  if (!integerp(obj)) error(name, notaninteger, obj);
-  int n = obj->integer;
+  if (!intp(obj)) error(name, notaninteger, obj);
+  int n = getint(obj);
   if (n & ~1) error(name, PSTR("argument is not a bit value"), obj);
   return n;
 }
@@ -43,6 +51,7 @@ int checkbitvalue (symbol_t name, object *obj) {
 
 #ifdef FLOAT
 float checkintfloat (symbol_t name, object *obj){
+  if (fixnump(obj)) return (intptr_t)obj>>3;
   if (integerp(obj)) return obj->integer;
   if (!floatp(obj)) error(name, notanumber, obj);
   return obj->single_float;
@@ -51,7 +60,7 @@ float checkintfloat (symbol_t name, object *obj){
 
 int checkchar (symbol_t name, object *obj) {
   if (!characterp(obj)) error(name, PSTR("argument is not a character"), obj);
-  return obj->chars;
+  return getcharacter(obj);
 }
 
 int isstream (object *obj){
@@ -59,20 +68,21 @@ int isstream (object *obj){
   return obj->integer;
 }
 
+// TODO: Replace with version that uses immediate values?
 int issymbol (object *obj, symbol_t n) {
-  return symbolp(obj) && obj->name == n;
+  return symbolp(obj) && getname(obj) == n;
 }
 
 int keywordp (object *obj) {
   if (!symbolp(obj)) return false;
-  symbol_t name = obj->name;
+  symbol_t name = getname(obj);
   if (name > ENDKEYWORDS) return false; // No keywords except built-ins.
   return (getcallc(name) == CC_KEYWORD);
 }
 
 int checkkeyword (symbol_t name, object *obj) {
   if (!keywordp(obj)) error(name, PSTR("argument is not a keyword"), obj);
-  symbol_t kname = obj->name;
+  symbol_t kname = getname(obj);
   uintptr_t data = (uintptr_t)lookupfn(kname);
   uint8_t context = data & 0xFF;
   if (context != 0 && context != name) error(name, invalidkey, obj);
@@ -88,12 +98,18 @@ void checkargs (symbol_t name, uint8_t callc, object *args) {
   if ((callc & 0x0f) != 0x0f && nargs>(callc & 0x0f)) error2(name, toomanyargs);
 }
 
-int eq (object *arg1, object *arg2) {
+int eq (object *a, object *b) {
+  return (a == b) ? true : false;
+}
+
+int eql (object *arg1, object *arg2) {
   if (arg1 == arg2) return true;  // Same object
+  if (immediatep(arg1) && immediatep(arg2)) return false; // Immediates are not eq if different objects.
   if ((arg1 == nil) || (arg2 == nil)) return false;  // Not both values
+  if (intp(arg1) && intp(arg2)) return getint(arg1) == getint(arg2); // Equal integers?
+  if (immediatep(arg1) || immediatep(arg2)) return false; // Not eq if either is immediate.
   if (arg1->cdr != arg2->cdr) return false;  // Different values
   if (symbolp(arg1) && symbolp(arg2)) return true;  // Same symbol
-  if (integerp(arg1) && integerp(arg2)) return true;  // Same integer
   #ifdef FLOAT
   if (floatp(arg1) && floatp(arg2)) return true; // Same float
   #endif

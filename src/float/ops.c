@@ -2,14 +2,14 @@
 object *fn_floatfn (object *args, object *env) {
   (void) env;
   object *arg = first(args);
-  return (floatp(arg)) ? arg : makefloat((float)(arg->integer));
+  return (floatp(arg)) ? arg : makefloat((float)(getint(arg)));
 }
 
 //;; (numberp :min 1 :max 1)
 object *fn_numberp (object *args, object *env) {
   (void) env;
   object *arg = first(args);
-  return (integerp(arg) || floatp(arg)) ? tee : nil;
+  return (intp(arg) || floatp(arg)) ? tee : nil;
 }
 
 //;; (floatp :min 1 :max 1)
@@ -114,10 +114,10 @@ object *fn_expt (object *args, object *env) {
   object *arg1 = first(args); object *arg2 = second(args);
   float float1 = checkintfloat(EXPT, arg1);
   float value = log(abs(float1)) * checkintfloat(EXPT, arg2);
-  if (integerp(arg1) && integerp(arg2) && ((arg2->integer) > 0) && (abs(value) < 21.4875)) 
-    return number(intpower(arg1->integer, arg2->integer));
+  if (intp(arg1) && intp(arg2) && (getint(arg2) > 0) && (abs(value) < 21.4875))
+    return number(intpower(getint(arg1), getint(arg2)));
   if (float1 < 0) {
-    if (integerp(arg2)) return makefloat((arg2->integer & 1) ? -exp(value) : exp(value));
+    if (intp(arg2)) return makefloat((getint(arg2) & 1) ? -exp(value) : exp(value));
     else error2(EXPT, PSTR("invalid result"));
   }
   return makefloat(exp(value));

@@ -27,7 +27,7 @@ object *fn_pprintall (object *args, object *env) {
     object *var = car(pair);
     object *val = cdr(pair);
     pln(pfun);
-    if (consp(val) && symbolp(car(val)) && car(val)->name == LAMBDA) {
+    if (consp(val) && symbolp(car(val)) && getname(car(val)) == LAMBDA) {
       superprint(cons(symbol(DEFUN), cons(var, cdr(val))), 0, pfun);
     #ifdef CODE
     } else if (consp(val) && car(val)->type == CODE) {
@@ -112,10 +112,10 @@ object *fn_format (object *args, object *env) {
           else if (ch2 == 'S') { printobject(arg, pfun); indent(w, pad, pfun); }
           else if (ch2 == 'D' || ch2 == 'G') { indent(w, pad, pfun); prin1object(arg, pfun); }
           else if (ch2 == 'X' || ch2 == 'B') {
-            if (integerp(arg)) {
+            if (intp(arg)) {
               uint8_t power2 = (ch2 == 'B') ? 1 : 4;
               uint8_t hw = basewidth(arg, power2); if (width < hw) w = 0; else w = width-hw;
-              indent(w, pad, pfun); pintbase(arg->integer, power2, pfun);
+              indent(w, pad, pfun); pintbase(getint(arg), power2, pfun);
             } else {
               indent(w, pad, pfun); prin1object(arg, pfun);
             }
