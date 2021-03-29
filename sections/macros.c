@@ -54,7 +54,7 @@
 
 // Extracting immediates
 #if PTRWIDTH == 16
-#define getcharacter(x)    ((char)((uintptr_t)x>>8))
+#define getcharacter(x)    ((unsigned char)((uintptr_t)x>>8))
 #else
 #define getcharacter(x)    ((uintptr_t)x>>11)
 #endif
