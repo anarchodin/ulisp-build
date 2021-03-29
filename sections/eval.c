@@ -173,7 +173,7 @@ object *eval (object *form, object *env) {
       form = closure(TCstart, name, NULL, cdr(function), args, &env);
       pop(GCStack);
       int trace = tracing(name);
-      if (trace) {
+      if (name != 0 && trace) {
         object *result = eval(form, env);
         indent((--(TraceDepth[trace-1]))<<1, ' ', pserial);
         pint(TraceDepth[trace-1], pserial);
