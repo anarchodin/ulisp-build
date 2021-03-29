@@ -25,15 +25,15 @@
 #define pop(y)             ((y) = cdr(y))
 
 // Immediate types
-#define immediatep(x)      ((x) != NULL && ((uintptr_t)(x) & 2) == 2)
-#define fixnump(x)         ((x) != NULL && ((uintptr_t)(x) & 6) == 2)
+#define immediatep(x)      (((uintptr_t)(x) & 2) == 2)
+#define fixnump(x)         (((uintptr_t)(x) & 6) == 2)
 
 #if PTRWIDTH == 16
-#define builtinp(x)        ((x) != NULL && ((uintptr_t)(x) & 30) == 14)
-#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 254) == 126)
+#define builtinp(x)        (((uintptr_t)(x) & 30) == 14)
+#define characterp(x)      (((uintptr_t)(x) & 254) == 126)
 #else
-#define symbolp(x)         ((x) != NULL && ((uintptr_t)(x) & 30) == 14)
-#define characterp(x)      ((x) != NULL && ((uintptr_t)(x) & 2046) == 1022)
+#define symbolp(x)         (((uintptr_t)(x) & 30) == 14)
+#define characterp(x)      (((uintptr_t)(x) & 2046) == 1022)
 #endif
 
 // Boxed types
@@ -64,11 +64,11 @@
 
 // Dealing with types that can be either
 #define intp(x)            (integerp(x) || fixnump(x))
-#define getint(x)          (integerp(x) ? (x)->integer : (intptr_t)(x)>>3)
+#define getint(x)          (fixnump(x) ? (intptr_t)(x)>>3 : (x)->integer)
 
 #if PTRWIDTH == 16
 #define symbolp(x)         (usymbolp(x) || builtinp(x))
-#define getname(x)         (usymbolp(x) ? (x)->name : (symbol_t)(x)>>5)
+#define getname(x)         (builtinp(x) ? (symbol_t)(x)>>5 : (x)->name)
 #else
 #define getname(x)         ((symbol_t)(x)>>5)
 #endif
