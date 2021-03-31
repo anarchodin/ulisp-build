@@ -1,3 +1,9 @@
+#if defined(__xtensa__)
+#define REDRAW tft.display();
+#else
+#define REDRAW
+#endif
+
 //;; (draw-pixel :min 2 :max 3)
 object *fn_drawpixel (object *args, object *env) {
   #if defined(gfxsupport)
@@ -5,6 +11,7 @@ object *fn_drawpixel (object *args, object *env) {
   uint16_t colour = COLOR_WHITE;
   if (cddr(args) != NULL) colour = checkinteger(DRAWPIXEL, third(args));
   tft.drawPixel(checkinteger(DRAWPIXEL, first(args)), checkinteger(DRAWPIXEL, second(args)), colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -17,6 +24,7 @@ object *fn_drawline (object *args, object *env) {
   for (int i=0; i<4; i++) { params[i] = checkinteger(DRAWLINE, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(DRAWLINE, car(args));
   tft.drawLine(params[0], params[1], params[2], params[3], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -29,6 +37,7 @@ object *fn_drawrect (object *args, object *env) {
   for (int i=0; i<4; i++) { params[i] = checkinteger(DRAWRECT, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(DRAWRECT, car(args));
   tft.drawRect(params[0], params[1], params[2], params[3], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -41,6 +50,7 @@ object *fn_fillrect (object *args, object *env) {
   for (int i=0; i<4; i++) { params[i] = checkinteger(FILLRECT, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(FILLRECT, car(args));
   tft.fillRect(params[0], params[1], params[2], params[3], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -53,6 +63,7 @@ object *fn_drawcircle (object *args, object *env) {
   for (int i=0; i<3; i++) { params[i] = checkinteger(DRAWCIRCLE, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(DRAWCIRCLE, car(args));
   tft.drawCircle(params[0], params[1], params[2], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -65,6 +76,7 @@ object *fn_fillcircle (object *args, object *env) {
   for (int i=0; i<3; i++) { params[i] = checkinteger(FILLCIRCLE, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(FILLCIRCLE, car(args));
   tft.fillCircle(params[0], params[1], params[2], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -77,6 +89,7 @@ object *fn_drawroundrect (object *args, object *env) {
   for (int i=0; i<5; i++) { params[i] = checkinteger(DRAWROUNDRECT, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(DRAWROUNDRECT, car(args));
   tft.drawRoundRect(params[0], params[1], params[2], params[3], params[4], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -89,6 +102,7 @@ object *fn_fillroundrect (object *args, object *env) {
   for (int i=0; i<5; i++) { params[i] = checkinteger(FILLROUNDRECT, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(FILLROUNDRECT, car(args));
   tft.fillRoundRect(params[0], params[1], params[2], params[3], params[4], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -101,6 +115,7 @@ object *fn_drawtriangle (object *args, object *env) {
   for (int i=0; i<6; i++) { params[i] = checkinteger(DRAWTRIANGLE, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(DRAWTRIANGLE, car(args));
   tft.drawTriangle(params[0], params[1], params[2], params[3], params[4], params[5], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -113,6 +128,7 @@ object *fn_filltriangle (object *args, object *env) {
   for (int i=0; i<6; i++) { params[i] = checkinteger(FILLTRIANGLE, car(args)); args = cdr(args); }
   if (args != NULL) colour = checkinteger(FILLTRIANGLE, car(args));
   tft.fillTriangle(params[0], params[1], params[2], params[3], params[4], params[5], colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -134,6 +150,7 @@ object *fn_drawchar (object *args, object *env) {
   }
   tft.drawChar(checkinteger(DRAWCHAR, first(args)), checkinteger(DRAWCHAR, second(args)), checkchar(DRAWCHAR, third(args)),
     colour, bg, size);
+  REDRAW
   #endif
   return nil;
 }
@@ -182,6 +199,7 @@ object *fn_fillscreen (object *args, object *env) {
   uint16_t colour = COLOR_BLACK;
   if (args != NULL) colour = checkinteger(FILLSCREEN, first(args));
   tft.fillScreen(colour);
+  REDRAW
   #endif
   return nil;
 }
@@ -191,6 +209,7 @@ object *fn_setrotation (object *args, object *env) {
   #if defined(gfxsupport)
   (void) env;
   tft.setRotation(checkinteger(SETROTATION, first(args)));
+  REDRAW
   #endif
   return nil;
 }
@@ -200,6 +219,7 @@ object *fn_invertdisplay (object *args, object *env) {
   #if defined(gfxsupport)
   (void) env;
   tft.invertDisplay(first(args) != NULL);
+  REDRAW
   #endif
   return nil;
 }

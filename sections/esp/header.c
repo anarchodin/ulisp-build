@@ -1,8 +1,3 @@
-/* uLisp ESP Version 3.4 - www.ulisp.com
-   David Johnson-Davies - www.technoblogy.com - 4th January 2021
-
-   Licensed under the MIT license: https://opensource.org/licenses/MIT
-*/
 
 // Lisp Library
 const char LispLibrary[] PROGMEM = "";

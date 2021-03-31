@@ -1,8 +1,3 @@
-char *cstringbuf (object *arg) {
-  cstring(arg, SymbolTop, SYMBOLTABLESIZE-(SymbolTop-SymbolTable));
-  return SymbolTop;
-}
-
 char *cstring (object *form, char *buffer, int buflen) {
   int index = 0;
   form = cdr(form);
@@ -34,4 +29,9 @@ object *lispstring (char *s) {
   }
   obj->cdr = head;
   return obj;
+}
+
+char *cstringbuf (object *arg) {
+  cstring(arg, SymbolTop, SYMBOLTABLESIZE-(SymbolTop-SymbolTable));
+  return SymbolTop;
 }

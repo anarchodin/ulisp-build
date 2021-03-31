@@ -32,8 +32,6 @@ object *eval (object *form, object *env) {
 #endif
   int TC=0;
   EVAL:
-  // FIXME: Find the macro to test for on the next line.
-  //yield(); // Needed on ESP8266 to avoid Soft WDT Reset
   // Enough space?
 #if defined(__arm__)
   // Serial.println((uint32_t)sp - (uint32_t)&ENDSTACK); // Find best STACKDIFF value
@@ -44,6 +42,9 @@ object *eval (object *form, object *env) {
 #elif defined(__AVR__)
   // Serial.println((uint16_t)sp - (uint16_t)__bss_end); // Find best STACKDIFF value
   if ((uint16_t)sp - (uint16_t)__bss_end < STACKDIFF) error2(0, PSTR("stack overflow"));
+#elif defined(__xtensa__)
+  // REVIEW: No stack checking on ESPs?
+  yield(); // Needed on ESP8266 to avoid Soft WDT Reset
 #else
   if (End != 0xA5) error2(0, PSTR("Stack overflow"));
 #endif

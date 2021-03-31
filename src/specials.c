@@ -52,6 +52,9 @@ object *sp_setq (object *args, object *env) {
 //;; (loop :type :special)
 object *sp_loop (object *args, object *env) {
   object *start = args;
+  #if defined(__XTENSA__)
+  yield();
+  #endif
   for (;;) {
     args = start;
     while (args != NULL) {

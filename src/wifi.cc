@@ -1,5 +1,7 @@
 // Wi-fi
 
+// The wi-fi code is currently ESP-only.
+
 //;; (available :min 1 :max 1)
 object *fn_available (object *args, object *env) {
   (void) env;

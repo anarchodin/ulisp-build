@@ -85,7 +85,10 @@
      (:types zzero code number stream float array string pair)
      (:streams serial i2c spi sd string gfx)
      (:keywords
-      (nil
+      ("ESP8266"
+       (DIGITALWRITE HIGH LOW)
+       (PINMODE INPUT INPUT_PULLUP OUTPUT))
+      ("ESP32"
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP INPUT_PULLDOWN OUTPUT)))
      (:features :float :gfx :code :array :stringstream :write-resolution)))
