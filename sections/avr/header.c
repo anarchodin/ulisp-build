@@ -10,6 +10,7 @@ const char LispLibrary[] PROGMEM = "";
 // #define printgcs
 // #define sdcardsupport
 // #define lisplibrary
+#define assemblerlist
 // #define lineeditor
 // #define vt100
 

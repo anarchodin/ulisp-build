@@ -128,10 +128,16 @@ int gserial () {
   KybdAvailable = 0;
   WritePtr = 0;
   return '\n';
-#else
+#elif defined(CPU_ATmega328P)
   while (!Serial.available());
   char temp = Serial.read();
   if (temp != '\n') pserial(temp);
+  return temp;
+#else
+  unsigned long start = millis();
+  while (!Serial.available()) if (millis() - start > 1000) clrflag(NOECHO);
+  char temp = Serial.read();
+  if (temp != '\n' && !tstflag(NOECHO)) pserial(temp);
   return temp;
 #endif
 }
@@ -140,10 +146,16 @@ object *nextitem (gfun_t gfun) {
   int ch = gfun();
   while(issp(ch)) ch = gfun();
 
+  #if defined(CPU_ATmeta328P)
   if (ch == ';') {
     while(ch != '(') ch = gfun();
-    ch = '(';
   }
+  #else
+  if (ch == ';') {
+    do { ch = gfun(); if (ch == ';' || ch == '(') setflag(NOECHO); }
+    while(ch != '(');
+  }
+  #endif
   if (ch == '\n') ch = gfun();
   if (ch == -1) return nil;
   if (ch == ')') return (object *)KET;

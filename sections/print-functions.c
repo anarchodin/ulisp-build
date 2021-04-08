@@ -128,6 +128,14 @@ void printhex4 (int i, pfun_t pfun) {
   }
   pfun(' ');
 }
+
+void printhex2 (int i, pfun_t pfun) {
+  for (unsigned int d=0x10; d>0; d=d>>4) {
+    unsigned int j = i/d;
+    pfun((j<10) ? j+'0' : j+'W');
+    i = i - j*d;
+  }
+}
 #endif
 
 #ifdef FLOAT

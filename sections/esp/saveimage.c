@@ -85,14 +85,14 @@ unsigned int loadimage (object *arg) {
   else error(LOADIMAGE, PSTR("illegal argument"), arg);
   if (!file) error2(LOADIMAGE, PSTR("problem loading from SD card"));
   SDReadInt(file);
-  int imagesize = SDReadInt(file);
+  unsigned int imagesize = SDReadInt(file);
   GlobalEnv = (object *)SDReadInt(file);
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)SDReadInt(file);
   for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = file.read();
   #endif
-  for (int i=0; i<imagesize; i++) {
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)SDReadInt(file);
     cdr(obj) = (object *)SDReadInt(file);
@@ -104,15 +104,15 @@ unsigned int loadimage (object *arg) {
   EEPROM.begin(EEPROMSIZE);
   int addr = 0;
   EpromReadInt(&addr); // Skip eval address
-  int imagesize = EpromReadInt(&addr);
-  if (imagesize == 0 || imagesize == 0xFFFF) error2(LOADIMAGE, PSTR("no saved image"));
+  unsigned int imagesize = EpromReadInt(&addr);
+  if (imagesize == 0 || imagesize == 0xFFFFFFFF) error2(LOADIMAGE, PSTR("no saved image"));
   GlobalEnv = (object *)EpromReadInt(&addr);
   GCStack = (object *)EpromReadInt(&addr);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)EpromReadInt(&addr);
   for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = EEPROM.read(addr++);
   #endif
-  for (int i=0; i<imagesize; i++) {
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)EpromReadInt(&addr);
     cdr(obj) = (object *)EpromReadInt(&addr);

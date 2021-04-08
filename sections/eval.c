@@ -204,7 +204,7 @@ object *eval (object *form, object *env) {
       // REVIEW: Why are these two different?
 #if defined(__arm__)
       uint32_t entry = startblock(car(function)) + 1;
-#elif defined(__riscv)
+#else
       uint32_t entry = startblock(car(function));
 #endif
       pop(GCStack);

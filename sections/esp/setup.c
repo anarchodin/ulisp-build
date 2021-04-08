@@ -21,5 +21,5 @@ void setup () {
   initenv();
   initsleep();
   initgfx();
-  pfstring(PSTR("uLisp 3.5 "), pserial); pln(pserial);
+  pfstring(PSTR("uLisp 3.6 "), pserial); pln(pserial);
 }

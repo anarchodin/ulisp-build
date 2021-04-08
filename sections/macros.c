@@ -95,8 +95,15 @@
 
 #ifdef CODE
 // Code marker stores start and end of code block
+#ifdef __AVR__
+#define CODESHIFT 8
+#define startblock(x)      ((x->integer) & 0xFF)
+#define endblock(x)        ((x->integer) >> 8 & 0xFF)
+#else
+#define CODESHIFT 16
 #define startblock(x)      ((x->integer) & 0xFFFF)
 #define endblock(x)        ((x->integer) >> 16 & 0xFFFF)
+#endif
 #endif
 
 // Calling conventions.

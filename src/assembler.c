@@ -1,5 +1,11 @@
 // Assembler
 
+#if defined(CPU_ATmega1284P)
+#define CODE_ADDRESS 0x1bb00
+#elif defined(CPU_AVR128DX48)
+#define CODE_ADDRESS 0x1be00
+#endif
+
 object *call (int entry, int nargs, object *args, object *env) {
 #if defined(CODESIZE)
   (void) env;
@@ -13,7 +19,12 @@ object *call (int entry, int nargs, object *args, object *env) {
   #ifdef __riscv
   asm("fence.i");
   #endif
+  #ifdef __AVR__
+  uint32_t address = (CODE_ADDRESS + entry)>>1; // Code addresses are word addresses on AVR
+  int w = ((intfn_ptr_type)address)(param[0], param[1], param[2], param[3]);
+  #else
   int w = ((intfn_ptr_type)&MyCode[entry])(param[0], param[1], param[2], param[3]);
+  #endif
   return number(w);
 #else
   return nil;
@@ -76,8 +87,13 @@ int assemble (int pass, int origin, object *entries, object *env, object *pcpair
     }
     entries = cdr(entries);
   }
+  #ifdef __AVR__
+  // Round up to multiple of 2 to give code size
+  if (pc%2 != 0) pc = pc + 2 - pc%2;
+  #else
   // Round up to multiple of 4 to give code size
   if (pc%4 != 0) pc = pc + 4 - pc%4;
+  #endif
   return pc;
 }
 
@@ -98,6 +114,12 @@ object *sp_defcode (object *args, object *env) {
   object *params = second(args);
   if (!symbolp(var)) error(DEFCODE, PSTR("not a symbol"), var);
 
+  #ifdef __AVR__
+  // Make *p* a local variable for program counter
+  object *pcpair = cons(newsymbol(pack40((char*)"*p*")), number(0));
+  push(pcpair,env);
+  args = cdr(args);
+  #else /* ARM or RISC-V */
   // Make parameters into synonyms for registers
   int regn = 0;
   while (params != NULL) {
@@ -112,6 +134,7 @@ object *sp_defcode (object *args, object *env) {
   object *pcpair = cons(newsymbol(pack40((char*)"*pc*\0")), number(0));
   push(pcpair,env);
   args = cdr(args);
+  #endif /* end ISA conditional */
 
   // Make labels into local variables
   object *entries = cdr(args);
@@ -158,7 +181,7 @@ object *sp_defcode (object *args, object *env) {
           if (startblock(codeid) < smallest && startblock(codeid) >= origin) {
             smallest = startblock(codeid);
             block = codeid;
-          }        
+          }
         }
       }
       globals = cdr(globals);
@@ -172,7 +195,7 @@ object *sp_defcode (object *args, object *env) {
         MyCode[target] = MyCode[i];
         target++;
       }
-      block->integer = target<<16 | origin;
+      block->integer = target<<CODESHIFT | origin;
       origin = target;
     }
     
@@ -181,10 +204,23 @@ object *sp_defcode (object *args, object *env) {
   // Second pass - origin is first free location
   codesize = assemble(2, origin, cdr(args), env, pcpair);
 
-  object *val = cons(codehead((origin+codesize)<<16 | origin), args);
+  object *val = cons(codehead((origin+codesize)<<CODESHIFT | origin), args);
   object *pair = value(getname(var), GlobalEnv);
   if (pair != NULL) cdr(pair) = val;
   else push(cons(var, val), GlobalEnv);
+
+  #if defined(CPU_ATmega1284P)
+  // Use Optiboot Flasher in MightyCore with 256 byte page from CODE_ADDRESS 0x1bb00 to 0x1bbff
+  optiboot_page_erase(CODE_ADDRESS);
+  for (unsigned int i=0; i<CODESIZE/2; i++) optiboot_page_fill(CODE_ADDRESS + i*2, MyCode[i*2] | MyCode[i*2+1]<<8);
+  optiboot_page_write(CODE_ADDRESS);
+  #elif defined (CPU_AVR128DX48)
+  // Use Flash Writer in DxCore with 512 byte page from CODE_ADDRESS 0x1be00 to 0x1c000
+  if (Flash.checkWritable()) error2(DEFCODE, PSTR("flash write not supported"));
+  if (Flash.erasePage(CODE_ADDRESS, 1)) error2(DEFCODE, PSTR("problem erasing flash"));
+  Flash.writeBytes(CODE_ADDRESS, MyCode, CODESIZE);
+  #endif
+
   clrflag(NOESC);
   return var;
 #else

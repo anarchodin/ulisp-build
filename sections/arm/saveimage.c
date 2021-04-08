@@ -196,7 +196,7 @@ int loadimage (object *arg) {
   else error(LOADIMAGE, PSTR("illegal argument"), arg);
   if (!file) error2(LOADIMAGE, PSTR("problem loading from SD card"));
   SDReadInt(file);
-  int imagesize = SDReadInt(file);
+  unsigned int imagesize = SDReadInt(file);
   GlobalEnv = (object *)SDReadInt(file);
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
@@ -205,7 +205,7 @@ int loadimage (object *arg) {
   for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = file.read();
   #endif
   for (int i=0; i<CODESIZE; i++) MyCode[i] = file.read();
-  for (int i=0; i<imagesize; i++) {
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)SDReadInt(file);
     cdr(obj) = (object *)SDReadInt(file);
@@ -217,7 +217,7 @@ int loadimage (object *arg) {
   if (!FlashSetup()) error2(LOADIMAGE, PSTR("no DataFlash found."));
   FlashBeginRead();
   FlashReadInt(); // Skip eval address
-  int imagesize = FlashReadInt();
+  unsigned int imagesize = FlashReadInt();
   if (imagesize == 0 || imagesize == 0xFFFFFFFF) error2(LOADIMAGE, PSTR("no saved image"));
   GlobalEnv = (object *)FlashReadInt();
   GCStack = (object *)FlashReadInt();
@@ -227,7 +227,7 @@ int loadimage (object *arg) {
   for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = FlashReadByte();
   #endif
   for (int i=0; i<CODESIZE; i++) MyCode[i] = FlashReadByte();
-  for (int i=0; i<imagesize; i++) {
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)FlashReadInt();
     cdr(obj) = (object *)FlashReadInt();

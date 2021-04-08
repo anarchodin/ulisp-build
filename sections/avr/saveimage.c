@@ -5,26 +5,40 @@ void SDWriteInt (File file, int data) {
   file.write(data & 0xFF); file.write(data>>8 & 0xFF);
 }
 #elif defined(FLASHWRITESIZE)
-#elif defined(FLASHWRITESIZE)
-#define BASE_ADDRESS 0x1C000
-
-boolean FlashSetup () {
-  return (Flash.checkWritable() == FLASHWRITE_OK);
-}
-
-boolean FlashBeginWrite (int pages) {
-  // Erase how many 512K pages we need; must be a power of 2 <= 32.
-  return Flash.erasePage(BASE_ADDRESS, pages) == 0;
-}
-
-void FlashWriteByte (uint32_t *addr, uint8_t data) {
-  Flash.writeByte((*addr)++, data);
+#if defined (CPU_ATmega1284P)
+// save-image area is the 16K bytes (64 256-byte pages) from 0x1bc00 to 0x1fc00
+const uint32_t BaseAddress = 0x1bc00;
+uint8_t FlashCheck() {
+  return 0;
 }
 
 void FlashWriteInt (uint32_t *addr, int data) {
-  Flash.writeWord(*addr, data);
+  if (((*addr) & 0xFF) == 0) optiboot_page_erase(BaseAddress + ((*addr) & 0xFF00));
+  optiboot_page_fill(BaseAddress + *addr, data);
+  if (((*addr) & 0xFF) == 0xFE) optiboot_page_write(BaseAddress + ((*addr) & 0xFF00));
   (*addr)++; (*addr)++;
 }
+
+void FlashEndWrite (uint32_t *addr) {
+  if (((*addr) & 0xFF) != 0) optiboot_page_write((BaseAddress + ((*addr) & 0xFF00)));
+}
+
+#elif defined (CPU_AVR128DX48)
+// save-image area is the 16K bytes (32 512-byte pages) from 0x1c000 to 0x20000
+const uint32_t BaseAddress = 0x1c000;
+uint8_t FlashCheck() {
+  return Flash.checkWritable();
+}
+
+void FlashWriteInt (uint32_t *addr, int data) {
+  if (((*addr) & 0x1FF) == 0) Flash.erasePage(BaseAddress + ((*addr) & 0xFE00));
+  Flash.writeWord(BaseAddress + *addr, data);
+  (*addr)++; (*addr)++;
+}
+
+void FlashEndWrite (uint32_t *addr) {
+}
+#endif
 #else
 void EEPROMWriteInt (unsigned int *addr, int data) {
   EEPROM.write((*addr)++, data & 0xFF); EEPROM.write((*addr)++, data>>8 & 0xFF);
@@ -51,6 +65,9 @@ unsigned int saveimage (object *arg) {
   int SymbolUsed = SymbolTop - SymbolTable;
   for (int i=0; i<SymbolUsed; i++) file.write(SymbolTable[i]);
   #endif
+  #if defined(CODESIZE)
+  for (int i=0; i<CODESIZE; i++) file.write(MyCode[i]);
+  #endif
   for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     SDWriteInt(file, (uintptr_t)car(obj));
@@ -60,26 +77,29 @@ unsigned int saveimage (object *arg) {
   return imagesize;
 #elif defined(FLASHWRITESIZE)
   if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, invalidarg, arg);
-  if (!FlashSetup()) error2(SAVEIMAGE, PSTR("no DataFlash found."));
+  if (FlashCheck()) error2(SAVEIMAGE, PSTR("flash write not supported"));
   // Save to Flash
   int SymbolUsed = SymbolTop - SymbolTable;
-  int bytesneeded = imagesize*4 + SymbolUsed + 10;
+  int bytesneeded = 10 + SYMBOLTABLESIZE + CODESIZE + imagesize*4;
   if (bytesneeded > FLASHWRITESIZE) error(SAVEIMAGE, PSTR("image too large"), number(imagesize));
-  if (!FlashBeginWrite(32)) error2(SAVEIMAGE, PSTR("problem erasing flash"));
-  uint32_t addr = BASE_ADDRESS;
+  uint32_t addr = 0;
   FlashWriteInt(&addr, (uintptr_t)arg);
   FlashWriteInt(&addr, imagesize);
   FlashWriteInt(&addr, (uintptr_t)GlobalEnv);
   FlashWriteInt(&addr, (uintptr_t)GCStack);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   FlashWriteInt(&addr, (uintptr_t)SymbolTop);
-  for (int i=0; i<SymbolUsed; i++) FlashWriteByte(&addr, SymbolTable[i]);
+  for (int i=0; i<SYMBOLTABLESIZE/2; i++) FlashWriteInt(&addr, SymbolTable[i*2] | SymbolTable[i*2+1]<<8);
+  #endif
+  #if defined(CODESIZE)
+  for (int i=0; i<CODESIZE/2; i++) FlashWriteInt(&addr, MyCode[i*2] | MyCode[i*2+1]<<8);
   #endif
   for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     FlashWriteInt(&addr, (uintptr_t)car(obj));
     FlashWriteInt(&addr, (uintptr_t)cdr(obj));
   }
+  FlashEndWrite(&addr);
   return imagesize;
 #else
   if (!(arg == NULL || listp(arg))) error(SAVEIMAGE, invalidarg, arg);
@@ -110,15 +130,27 @@ int SDReadInt (File file) {
   return b0 | b1<<8;
 }
 #elif defined(FLASHWRITESIZE)
+#if defined (CPU_ATmega1284P)
 uint8_t FlashReadByte (uint32_t *addr) {
-  return Flash.readByte((*addr)++);
+  return pgm_read_byte_far(BaseAddress + (*addr)++);
 }
 
 int FlashReadInt (uint32_t *addr) {
-  int data = Flash.readWord(*addr);
+  int data = pgm_read_word_far(BaseAddress + *addr);
   (*addr)++; (*addr)++;
   return data;
 }
+#elif defined (CPU_AVR128DX48)
+uint8_t FlashReadByte (uint32_t *addr) {
+  return Flash.readByte(BaseAddress + (*addr)++);
+}
+
+int FlashReadInt (uint32_t *addr) {
+  int data = Flash.readWord(BaseAddress + *addr);
+  (*addr)++; (*addr)++;
+  return data;
+}
+#endif
 #else
 int EEPROMReadInt (unsigned int *addr) {
   uint8_t b0 = EEPROM.read((*addr)++); uint8_t b1 = EEPROM.read((*addr)++);
@@ -135,7 +167,7 @@ unsigned int loadimage (object *arg) {
   else error(LOADIMAGE, invalidarg, arg);
   if (!file) error2(LOADIMAGE, PSTR("problem loading from SD card"));
   SDReadInt(file);
-  int imagesize = SDReadInt(file);
+  unsigned int imagesize = SDReadInt(file);
   GlobalEnv = (object *)SDReadInt(file);
   GCStack = (object *)SDReadInt(file);
   #if SYMBOLTABLESIZE > BUFFERSIZE
@@ -143,7 +175,10 @@ unsigned int loadimage (object *arg) {
   int SymbolUsed = SymbolTop - SymbolTable;
   for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = file.read();
   #endif
-  for (int i=0; i<imagesize; i++) {
+  #if defined(CODESIZE)
+  for (int i=0; i<CODESIZE; i++) MyCode[i] = file.read();
+  #endif
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)SDReadInt(file);
     cdr(obj) = (object *)SDReadInt(file);
@@ -152,19 +187,21 @@ unsigned int loadimage (object *arg) {
   gc(NULL, NULL);
   return imagesize;
 #elif defined(FLASHWRITESIZE)
-  if (!FlashSetup()) error2(LOADIMAGE, PSTR("no Flash found."));
-  uint32_t addr = BASE_ADDRESS;
+  if (FlashCheck()) error2(SAVEIMAGE, PSTR("flash write not supported"));
+  uint32_t addr = 0;
   FlashReadInt(&addr); // Skip eval address
-  int imagesize = FlashReadInt(&addr);
-  if (imagesize == 0 || imagesize == 0xFFFFFFFF) error2(LOADIMAGE, PSTR("no saved image"));
+  unsigned int imagesize = FlashReadInt(&addr);
+  if (imagesize == 0 || imagesize == 0xFFFF) error2(LOADIMAGE, PSTR("no saved image"));
   GlobalEnv = (object *)FlashReadInt(&addr);
   GCStack = (object *)FlashReadInt(&addr);
   #if SYMBOLTABLESIZE > BUFFERSIZE
   SymbolTop = (char *)FlashReadInt(&addr);
-  int SymbolUsed = SymbolTop - SymbolTable;
-  for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = FlashReadByte(&addr);
+  for (int i=0; i<SYMBOLTABLESIZE; i++) SymbolTable[i] = FlashReadByte(&addr);
   #endif
-  for (int i=0; i<imagesize; i++) {
+  #if defined(CODESIZE)
+  for (int i=0; i<CODESIZE; i++) MyCode[i] = FlashReadByte(&addr);
+  #endif
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)FlashReadInt(&addr);
     cdr(obj) = (object *)FlashReadInt(&addr);
@@ -182,7 +219,7 @@ unsigned int loadimage (object *arg) {
   int SymbolUsed = SymbolTop - SymbolTable;
   for (int i=0; i<SymbolUsed; i++) SymbolTable[i] = EEPROM.read(addr++);
   #endif
-  for (int i=0; i<imagesize; i++) {
+  for (unsigned int i=0; i<imagesize; i++) {
     object *obj = &Workspace[i];
     car(obj) = (object *)EEPROMReadInt(&addr);
     cdr(obj) = (object *)EEPROMReadInt(&addr);
@@ -204,7 +241,7 @@ void autorunimage () {
     apply(0, autorun, NULL, NULL);
   }
 #elif defined(FLASHWRITESIZE)
-  uint32_t addr = BASE_ADDRESS;
+  uint32_t addr = 0;
   object *autorun = (object *)FlashReadInt(&addr);
   if (autorun != NULL && (unsigned int)autorun != 0xFFFF) {
     loadimage(nil);

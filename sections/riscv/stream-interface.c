@@ -94,7 +94,10 @@ pfun_t pstreamfun (object *args) {
     else if (address == 2) pfun = serial2write;
     else if (address == 3) pfun = serial3write;
     #endif
-  }   
+  }
+  else if (streamtype == STRINGSTREAM) {
+    pfun = pstr;
+  }
   #if defined(sdcardsupport)
   else if (streamtype == SDSTREAM) pfun = (pfun_t)SDwrite;
   #endif

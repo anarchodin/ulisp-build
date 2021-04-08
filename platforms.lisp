@@ -9,13 +9,17 @@
 
 (defparameter *platforms*
   '((:avr
-     (:types zzero symbol number stream string pair)
+     (:types zzero symbol code number stream string pair)
      (:streams serial i2c spi sd)
      (:keywords
       ("CPU_ATmega328P"
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP OUTPUT)
        (ANALOGREFERENCE DEFAULT INTERNAL EXTERNAL))
+      ("CPU_ATmega1284P"
+       (DIGITALWRITE HIGH LOW)
+       (PINMODE INPUT INPUT_PULLUP OUTPUT)
+       (ANALOGREFERENCE DEFAULT INTERNAL1V1 INTERNAL2V56 EXTERNAL))
       ("CPU_ATmega2560"
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP OUTPUT)
@@ -31,7 +35,7 @@
        (ANALOGREFERENCE DEFAULT VDD INTERNAL1V024 INTERNAL2V048 INTERNAL4V096
                         INTERNAL2V5 EXTERNAL)
        (ANALOGREAD ADC_DAC0 ADC_TEMPERATURE)))
-     (:features :dacreference))
+     (:features :code :dacreference))
     (:arm
      (:types zzero code number stream float array string pair)
      (:streams serial i2c spi sd string gfx)
@@ -85,10 +89,7 @@
      (:types zzero code number stream float array string pair)
      (:streams serial i2c spi sd string gfx)
      (:keywords
-      ("ESP8266"
-       (DIGITALWRITE HIGH LOW)
-       (PINMODE INPUT INPUT_PULLUP OUTPUT))
-      ("ESP32"
+      (nil
        (DIGITALWRITE HIGH LOW)
        (PINMODE INPUT INPUT_PULLUP INPUT_PULLDOWN OUTPUT)))
      (:features :float :gfx :code :array :stringstream :write-resolution)))

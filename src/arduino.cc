@@ -4,7 +4,7 @@ object *fn_pinmode (object *args, object *env) {
   int pin = checkinteger(PINMODE, first(args));
   PinMode pm = INPUT;
   object *arg = second(args);
-  if (keywordp(arg)) pm = checkkeyword(PINMODE, arg);
+  if (keywordp(arg)) pm = (PinMode)checkkeyword(PINMODE, arg);
   else if (intp(arg)) {
     int mode = getint(arg);
     if (mode == 1) pm = OUTPUT; else if (mode == 2) pm = INPUT_PULLUP;
