@@ -120,9 +120,9 @@ void pintbase (unsigned int i, uint8_t power2, pfun_t pfun) {
   printhex4 - prints a four-digit hexadecimal number with leading zeros
 */
 void printhex4 (int i, pfun_t pfun) {
-  int p = 0x1000;
-  for (int d=p; d>0; d=d/16) {
-    int j = i/d;
+  unsigned int p = 0x1000;
+  for (unsigned int d=p; d>0; d=d/16) {
+    unsigned int j = i/d;
     pfun((j<10) ? j+'0' : j + 'W');
     i = i - j*d;
   }

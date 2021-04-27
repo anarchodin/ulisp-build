@@ -65,7 +65,7 @@
   #define Serial Serial3
   #define WORKSPACESIZE (2750-SDSIZE)     /* Objects (4*bytes) */
   #define FLASHWRITESIZE 16384            /* Bytes */
-  #define SYMBOLTABLESIZE 256             /* Bytes */
+  #define SYMBOLTABLESIZE 480             /* Bytes */
   #define CODESIZE 96                     /* Bytes <= 512 */
   #define STACKDIFF 320
   #define CPU_AVR128DX48
